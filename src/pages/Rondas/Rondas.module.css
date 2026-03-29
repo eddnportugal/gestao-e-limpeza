@@ -1,0 +1,890 @@
+/* ═══════════════════════════════════
+   Rondas — QR Code para Rondas
+═══════════════════════════════════ */
+
+/* ─── Toolbar ─── */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 14px;
+  border: 2px solid var(--cor-borda);
+  border-radius: 10px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  transition: border-color 0.2s;
+}
+.searchWrap:focus-within { border-color: var(--cor-primaria); }
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: var(--cor-texto);
+  background: transparent;
+}
+
+.filtroSelect {
+  padding: 9px 14px;
+  border: 2px solid var(--cor-borda);
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  outline: none;
+  cursor: pointer;
+}
+.filtroSelect:focus { border-color: var(--cor-primaria); }
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  background: var(--cor-primaria);
+  color: white;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.addBtn:hover { background: var(--cor-primaria-hover); }
+
+/* ─── Tabs ─── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--cor-borda);
+  padding-bottom: 0;
+}
+
+.tab {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+.tab:hover { color: var(--cor-primaria); }
+.tabActive {
+  composes: tab;
+  color: var(--cor-primaria);
+  border-bottom-color: var(--cor-primaria);
+}
+
+/* ─── Grid ─── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+/* ─── Ponto Card ─── */
+.pontoCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 2px solid var(--cor-borda);
+  border-radius: 12px;
+  background: var(--cor-superficie);
+  transition: border-color 0.2s;
+}
+.pontoCard:hover { border-color: var(--cor-primaria); }
+
+.pontoHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.pontoImgWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f0f0f0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pontoImgWrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pontoInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.pontoTitulo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cor-texto);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pontoDesc {
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+  margin-top: 2px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pontoMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+}
+
+.statusAtivo { background: #e8f5e9; color: #2e7d32; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.statusInativo { background: #fce4ec; color: #c62828; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+
+/* ─── QR Preview ─── */
+.qrPreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--cor-borda);
+}
+
+.qrUrl {
+  font-size: 11px;
+  color: var(--cor-texto-secundario);
+  word-break: break-all;
+  text-align: center;
+}
+
+/* ─── Actions ─── */
+.pontoActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--cor-borda);
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.actionBtn:hover {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.dangerBtn {
+  composes: actionBtn;
+  color: #c62828;
+}
+.dangerBtn:hover {
+  border-color: #c62828;
+  color: #c62828;
+}
+
+/* ─── Modal ─── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--cor-fundo);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.formLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.formInput {
+  padding: 10px 14px;
+  border: 2px solid var(--cor-borda);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.formInput:focus { border-color: var(--cor-primaria); }
+
+.formTextarea {
+  composes: formInput;
+  min-height: 80px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.formSelect {
+  composes: formInput;
+  cursor: pointer;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancelBtn {
+  padding: 10px 20px;
+  border: 2px solid var(--cor-borda);
+  border-radius: 10px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.saveBtn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  background: var(--cor-primaria);
+  color: white;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.saveBtn:hover { background: var(--cor-primaria-hover); }
+.saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ─── Upload (imagem ponto) ─── */
+.uploadArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 16px;
+  border: 2px dashed var(--cor-borda);
+  border-radius: 10px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  font-size: 13px;
+}
+.uploadArea:hover {
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.uploadedImg {
+  position: relative;
+  width: 100%;
+  max-height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--cor-borda);
+}
+.uploadedImg img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  display: block;
+}
+.uploadedImgRemove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Vazio ─── */
+.vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--cor-texto-secundario);
+  text-align: center;
+}
+.vazio p { font-size: 14px; }
+
+/* ─── Relatório ─── */
+.filtrosRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  align-items: flex-end;
+}
+
+.filtroGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filtroLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cor-texto-secundario);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filtroInput {
+  padding: 8px 12px;
+  border: 2px solid var(--cor-borda);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--cor-texto);
+  background: var(--cor-superficie);
+  outline: none;
+}
+.filtroInput:focus { border-color: var(--cor-primaria); }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto-secundario);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--cor-borda);
+}
+
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+  vertical-align: middle;
+}
+
+.table tr:hover td {
+  background: rgba(0,0,0,0.02);
+}
+
+.mapLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--cor-primaria);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+}
+.mapLink:hover { text-decoration: underline; }
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+/* ─── Scan Page (Público — Premium) ─── */
+.scanPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  padding: 20px;
+}
+
+.scanCard {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.05);
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Header premium com gradiente */
+.scanHeaderPremium {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #2563eb 100%);
+  color: white;
+}
+
+.scanShieldIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.scanHeaderText {
+  flex: 1;
+  min-width: 0;
+}
+.scanHeaderText h1 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.2;
+}
+.scanHeaderText span {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* Corpo do card */
+.scanDescText {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+  padding: 16px 28px 0;
+  margin: 0;
+}
+
+.scanPontoImg {
+  width: calc(100% - 56px);
+  margin: 16px 28px 0;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Info bar — data + GPS */
+.scanInfoBar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 28px 0;
+  padding: 12px 16px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.scanInfoItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+}
+.scanInfoItem svg { color: #3b82f6; flex-shrink: 0; }
+
+.scanGeoObtendo { color: #d97706; font-style: italic; }
+.scanGeoErro { color: #dc2626; }
+
+/* Seções do formulário */
+.scanSection {
+  padding: 0 28px;
+  margin-top: 20px;
+}
+
+.scanSectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+.scanSectionLabel svg { color: #3b82f6; }
+
+/* Selfie */
+.scanSelfieBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 28px 16px;
+  border: 2px dashed #93c5fd;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #2563eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.scanSelfieBtn:hover {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+.scanSelfieBtn span {
+  font-size: 15px;
+  font-weight: 700;
+}
+.scanSelfieBtn small {
+  font-size: 12px;
+  color: #60a5fa;
+}
+
+.scanSelfiePreview {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #e2e8f0;
+}
+.scanSelfiePreview img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  display: block;
+}
+.scanSelfieRemove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.scanSelfieRemove:hover { background: rgba(220,38,38,0.85); }
+
+/* Camera viewfinder */
+.scanCameraWrap {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid #3b82f6;
+  background: #000;
+}
+.scanCameraVideo {
+  width: 100%;
+  display: block;
+  transform: scaleX(-1);
+  max-height: 300px;
+  object-fit: cover;
+}
+.scanCameraActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px;
+  background: #0f172a;
+}
+.scanCameraCaptureBtn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.scanCameraCaptureBtn:hover {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  transform: scale(1.05);
+}
+.scanCameraCancelBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.scanCameraCancelBtn:hover {
+  border-color: rgba(255,255,255,0.5);
+  color: #fff;
+}
+
+/* Select dropdown */
+.scanSelect {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  transition: border-color 0.2s;
+}
+.scanSelect:focus { border-color: #3b82f6; }
+
+.scanHint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Textarea */
+.scanTextareaField {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  resize: vertical;
+  min-height: 70px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.scanTextareaField:focus { border-color: #3b82f6; }
+
+/* Erro */
+.scanErroMsg {
+  text-align: center;
+  color: #dc2626;
+  font-size: 13px;
+  padding: 0 28px;
+  margin-top: 12px;
+}
+
+/* Botão submit premium */
+.scanSubmitBtnPremium {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: calc(100% - 56px);
+  margin: 24px 28px 28px;
+  padding: 15px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+}
+.scanSubmitBtnPremium:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+  box-shadow: 0 6px 20px rgba(37,99,235,0.45);
+  transform: translateY(-1px);
+}
+.scanSubmitBtnPremium:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Loading state */
+.scanLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 60px 28px;
+  text-align: center;
+  color: #64748b;
+}
+
+/* Error state */
+.scanErrorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 28px;
+  text-align: center;
+}
+.scanErrorIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scanErrorState h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #dc2626;
+  margin: 0;
+}
+.scanErrorState p {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Success state */
+.scanSuccessState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 48px 28px;
+  text-align: center;
+}
+.scanSuccessIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: successPop 0.4s ease-out;
+}
+@keyframes successPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.scanSuccessState h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #16a34a;
+  margin: 0;
+}
+.scanSuccessDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.scanSuccessDetails p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #475569;
+  margin: 0;
+}
+.scanSuccessDetails svg { color: #3b82f6; flex-shrink: 0; }
+
+/* Spin animation */
+.spinIcon { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+  .modal { padding: 20px; }
+  .table { font-size: 12px; }
+  .table th, .table td { padding: 8px 6px; }
+  .scanHeaderPremium { padding: 20px; }
+  .scanSection { padding: 0 20px; }
+  .scanSubmitBtnPremium { width: calc(100% - 40px); margin: 24px 20px 20px; }
+  .scanDescText { padding: 12px 20px 0; }
+  .scanPontoImg { width: calc(100% - 40px); margin: 12px 20px 0; }
+  .scanInfoBar { margin: 12px 20px 0; }
+}

@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AppVistoria — Sua equipe em campo. Você no controle.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    /* ===================== RESET & BASE ===================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:   #1E3A5F;
+      --primary-light: #2A527F;
+      --green:     #2ECC71;
+      --green-dark:#27AE60;
+      --red:       #E74C3C;
+      --bg:        #F8F9FA;
+      --white:     #FFFFFF;
+      --gray-100:  #F1F3F5;
+      --gray-200:  #E9ECEF;
+      --gray-400:  #ADB5BD;
+      --gray-600:  #6C757D;
+      --gray-800:  #343A40;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,.08);
+      --shadow-md: 0 8px 32px rgba(0,0,0,.12);
+      --shadow-lg: 0 24px 64px rgba(0,0,0,.16);
+      --radius:    12px;
+      --radius-lg: 20px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--gray-800);
+      overflow-x: hidden;
+    }
+
+    /* ===================== NAV ===================== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(30,58,95,.97);
+      backdrop-filter: blur(12px);
+      padding: 0 5%;
+      height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 20px rgba(0,0,0,.2);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--green);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 900; color: white;
+    }
+
+    .nav-logo span {
+      font-size: 1.25rem; font-weight: 700; color: white;
+    }
+
+    .nav-logo span em {
+      color: var(--green); font-style: normal;
+    }
+
+    .nav-links {
+      display: flex; gap: 32px; list-style: none;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,.8);
+      text-decoration: none; font-size: .9rem; font-weight: 500;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover { color: var(--green); }
+
+    .nav-cta {
+      background: var(--green);
+      color: white; border: none; border-radius: 8px;
+      padding: 10px 22px; font-size: .9rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: background .2s, transform .2s;
+    }
+
+    .nav-cta:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+    /* ===================== HERO ===================== */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f2744 0%, #1E3A5F 50%, #1a4a7a 100%);
+      display: flex; align-items: center;
+      padding: 100px 5% 60px;
+      position: relative; overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute; top: -50%; right: -10%;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(46,204,113,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -20%; left: -5%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(46,204,113,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 1200px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(46,204,113,.15);
+      border: 1px solid rgba(46,204,113,.3);
+      border-radius: 100px;
+      padding: 6px 16px; margin-bottom: 24px;
+      font-size: .8rem; font-weight: 600; color: var(--green);
+    }
+
+    .hero-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(1.3); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 900; color: white;
+      line-height: 1.15; margin-bottom: 20px;
+    }
+
+    .hero h1 .highlight {
+      color: var(--green);
+      display: block;
+    }
+
+    .hero p {
+      font-size: 1.1rem; color: rgba(255,255,255,.75);
+      line-height: 1.7; margin-bottom: 36px; max-width: 480px;
+    }
+
+    .hero-btns {
+      display: flex; gap: 16px; flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: white; border: none; border-radius: 10px;
+      padding: 14px 28px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: all .2s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+
+    .btn-primary:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(46,204,113,.4); }
+
+    .btn-outline {
+      background: transparent;
+      color: white; border: 2px solid rgba(255,255,255,.3);
+      border-radius: 10px; padding: 14px 28px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: all .2s;
+    }
+
+    .btn-outline:hover { border-color: white; background: rgba(255,255,255,.1); }
+
+    .hero-stats {
+      display: flex; gap: 32px; margin-top: 48px; flex-wrap: wrap;
+    }
+
+    .stat { text-align: center; }
+    .stat-number { font-size: 2rem; font-weight: 900; color: var(--green); display: block; }
+    .stat-label { font-size: .8rem; color: rgba(255,255,255,.6); }
+
+    /* HERO MOCKUP */
+    .hero-visual {
+      position: relative; display: flex; justify-content: center;
+    }
+
+    .device-frame {
+      background: #1a1a2e;
+      border-radius: 20px;
+      padding: 3px;
+      box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255,255,255,.1);
+      width: 100%; max-width: 480px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .device-screen {
+      background: #0f1923;
+      border-radius: 18px;
+      padding: 20px;
+      font-family: 'Inter', monospace;
+    }
+
+    .device-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .device-title { color: white; font-size: .85rem; font-weight: 700; }
+    .device-badge {
+      background: rgba(46,204,113,.2);
+      color: var(--green); border-radius: 100px;
+      padding: 3px 10px; font-size: .7rem; font-weight: 600;
+    }
+
+    .timeline-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      margin-bottom: 14px; opacity: 0;
+      animation: slideIn .4s ease forwards;
+    }
+
+    .timeline-item:nth-child(1) { animation-delay: .5s; }
+    .timeline-item:nth-child(2) { animation-delay: 1s; }
+    .timeline-item:nth-child(3) { animation-delay: 1.5s; }
+    .timeline-item:nth-child(4) { animation-delay: 2s; }
+    .timeline-item:nth-child(5) { animation-delay: 2.5s; }
+    .timeline-item:nth-child(6) { animation-delay: 3s; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .timeline-time { color: var(--gray-400); font-size: .7rem; min-width: 42px; padding-top: 2px; }
+
+    .timeline-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; flex-shrink: 0;
+    }
+
+    .icon-ok { background: rgba(46,204,113,.2); color: var(--green); }
+    .icon-err { background: rgba(231,76,60,.2); color: var(--red); }
+    .icon-info { background: rgba(255,255,255,.1); color: var(--gray-400); }
+
+    .timeline-text { color: rgba(255,255,255,.8); font-size: .75rem; line-height: 1.4; }
+    .timeline-text strong { color: white; }
+
+    .progress-bar-wrap { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.08); }
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .progress-label span { color: rgba(255,255,255,.6); font-size: .7rem; }
+    .progress-label strong { color: var(--green); font-size: .7rem; }
+    .progress-track { height: 5px; background: rgba(255,255,255,.1); border-radius: 100px; }
+    .progress-fill { height: 100%; background: var(--green); border-radius: 100px; animation: grow 3s ease forwards; }
+    @keyframes grow { from { width: 0; } to { width: 80%; } }
+
+    /* ===================== SECTION BASE ===================== */
+    section { padding: 100px 5%; }
+
+    .section-label {
+      display: inline-block;
+      background: rgba(30,58,95,.08);
+      color: var(--primary);
+      border-radius: 100px; padding: 5px 16px;
+      font-size: .8rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 800; color: var(--primary);
+      line-height: 1.2; margin-bottom: 16px;
+    }
+
+    .section-sub {
+      font-size: 1.05rem; color: var(--gray-600);
+      line-height: 1.7; max-width: 580px;
+    }
+
+    .section-header { margin-bottom: 60px; }
+    .section-header.center { text-align: center; }
+    .section-header.center .section-sub { margin: 0 auto; }
+
+    /* ===================== DOR / PROBLEMA ===================== */
+    .pain { background: white; }
+
+    .pain-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 28px; max-width: 1100px; margin: 0 auto;
+    }
+
+    .pain-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      border: 1px solid var(--gray-200);
+      transition: transform .3s, box-shadow .3s;
+    }
+
+    .pain-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+    .pain-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 20px;
+    }
+
+    .pain-icon.blue { background: rgba(30,58,95,.1); }
+    .pain-icon.green { background: rgba(46,204,113,.1); }
+    .pain-icon.orange { background: rgba(230,126,34,.1); }
+
+    .pain-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+    .pain-card p { font-size: .9rem; color: var(--gray-600); line-height: 1.6; }
+
+    /* ===================== COMO FUNCIONA ===================== */
+    .how { background: var(--bg); }
+
+    .steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 24px; max-width: 1100px; margin: 0 auto;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute; top: 36px; left: 10%; right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--green), var(--primary));
+      z-index: 0;
+    }
+
+    .step {
+      text-align: center; position: relative; z-index: 1;
+    }
+
+    .step-num {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--primary);
+      color: white; font-size: 1.4rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      border: 4px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--primary);
+      transition: background .3s;
+    }
+
+    .step:hover .step-num { background: var(--green); box-shadow: 0 0 0 2px var(--green); }
+
+    .step h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .step p { font-size: .85rem; color: var(--gray-600); line-height: 1.6; }
+
+    /* ===================== TOUR DO SISTEMA ===================== */
+    .tour { background: white; }
+
+    .tour-block {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+      max-width: 1100px; margin: 0 auto 100px;
+    }
+
+    .tour-block:last-child { margin-bottom: 0; }
+    .tour-block.reverse { direction: rtl; }
+    .tour-block.reverse > * { direction: ltr; }
+
+    .tour-text .tag {
+      display: inline-block;
+      background: rgba(46,204,113,.1);
+      color: var(--green-dark); border-radius: 100px;
+      padding: 4px 14px; font-size: .75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 16px;
+    }
+
+    .tour-text h2 { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 16px; line-height: 1.2; }
+    .tour-text p { font-size: .95rem; color: var(--gray-600); line-height: 1.7; margin-bottom: 20px; }
+
+    .feature-list { list-style: none; }
+    .feature-list li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .9rem; color: var(--gray-700);
+      padding: 6px 0;
+    }
+    .feature-list li::before {
+      content: '✓';
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--green); color: white;
+      font-size: .65rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* MOCKUP CARDS */
+    .mockup {
+      background: #0f1923;
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      font-size: .8rem;
+    }
+
+    .mockup-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px; padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .mockup-title { color: white; font-weight: 700; font-size: .85rem; }
+    .mockup-status {
+      padding: 3px 10px; border-radius: 100px;
+      font-size: .7rem; font-weight: 600;
+    }
+    .status-green { background: rgba(46,204,113,.2); color: var(--green); }
+    .status-orange { background: #3d2c1a; color: #ffb74d; }
+
+    .checklist-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+
+    .check-icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; flex-shrink: 0;
+    }
+
+    .check-ok { background: rgba(46,204,113,.2); color: var(--green); }
+    .check-no { background: rgba(231,76,60,.2); color: var(--red); }
+    .check-na { background: rgba(255,255,255,.08); color: var(--gray-400); }
+
+    .checklist-item .ci-text { color: rgba(255,255,255,.8); flex: 1; }
+    .checklist-item .ci-tag {
+      font-size: .65rem; padding: 2px 8px; border-radius: 100px;
+      background: rgba(255,255,255,.06); color: var(--gray-400);
+    }
+
+    .audio-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(46,204,113,.15); border: 1px solid rgba(46,204,113,.3);
+      border-radius: 8px; padding: 8px 14px;
+      color: var(--green); font-size: .75rem; font-weight: 600;
+      margin-top: 12px; cursor: pointer; width: fit-content;
+    }
+
+    .audio-wave {
+      display: flex; align-items: center; gap: 2px; height: 16px;
+    }
+
+    .wave-bar {
+      width: 3px; background: var(--green); border-radius: 2px;
+      animation: wave 1s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(1) { height: 4px; animation-delay: 0s; }
+    .wave-bar:nth-child(2) { height: 10px; animation-delay: .1s; }
+    .wave-bar:nth-child(3) { height: 14px; animation-delay: .2s; }
+    .wave-bar:nth-child(4) { height: 8px; animation-delay: .3s; }
+    .wave-bar:nth-child(5) { height: 12px; animation-delay: .4s; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(.4); }
+    }
+
+    /* TIMELINE MOCKUP */
+    .tl-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+
+    .tl-time { color: var(--gray-400); font-size: .7rem; min-width: 44px; padding-top: 2px; }
+
+    .tl-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; flex-shrink: 0;
+    }
+
+    .tl-content { flex: 1; }
+    .tl-content .tl-text { color: rgba(255,255,255,.8); font-size: .75rem; line-height: 1.4; }
+    .tl-content .tl-action {
+      display: inline-block; margin-top: 4px;
+      background: rgba(46,204,113,.15); color: var(--green);
+      border-radius: 6px; padding: 2px 8px; font-size: .65rem; font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tl-loading {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--gray-400); font-size: .7rem; padding: 10px 0;
+    }
+
+    .loading-dots { display: flex; gap: 3px; }
+    .loading-dots span {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--gray-400);
+      animation: blink 1.2s infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: .2s; }
+    .loading-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes blink { 0%, 80%, 100% { opacity: .2; } 40% { opacity: 1; } }
+
+    /* PDF MOCKUP */
+    .pdf-mock {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .pdf-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px; padding-bottom: 14px;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .pdf-logo {
+      width: 36px; height: 36px; background: var(--primary);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 900; font-size: .8rem;
+    }
+
+    .pdf-title-block h4 { font-size: .85rem; font-weight: 800; color: var(--primary); }
+    .pdf-title-block p { font-size: .7rem; color: var(--gray-600); }
+
+    .pdf-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 7px 0; border-bottom: 1px solid var(--gray-100);
+      font-size: .75rem;
+    }
+
+    .pdf-check { font-size: .8rem; flex-shrink: 0; margin-top: 1px; }
+    .pdf-item-text { flex: 1; color: var(--gray-700); line-height: 1.4; }
+    .pdf-item-desc { color: var(--gray-400); font-size: .7rem; margin-top: 2px; }
+
+    .pdf-summary {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 8px; margin-top: 14px; padding: 12px;
+      background: var(--bg); border-radius: 8px;
+    }
+
+    .pdf-sum-item { text-align: center; }
+    .pdf-sum-num { font-size: 1.2rem; font-weight: 800; display: block; }
+    .pdf-sum-label { font-size: .65rem; color: var(--gray-600); }
+
+    /* PORTAL SINDICO */
+    .portal-mock {
+      background: white; border-radius: var(--radius-lg);
+      padding: 24px; box-shadow: var(--shadow-lg);
+    }
+
+    .portal-head {
+      background: var(--primary); border-radius: var(--radius);
+      padding: 16px 20px; margin-bottom: 16px;
+    }
+
+    .portal-head h4 { color: white; font-size: .9rem; font-weight: 700; }
+    .portal-head p { color: rgba(255,255,255,.6); font-size: .75rem; }
+
+    .portal-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-bottom: 16px;
+    }
+
+    .portal-stat {
+      border-radius: 10px; padding: 14px;
+      text-align: center;
+    }
+    .portal-stat.ok { background: rgba(46,204,113,.08); border: 1px solid rgba(46,204,113,.2); }
+    .portal-stat.alert { background: rgba(231,76,60,.08); border: 1px solid rgba(231,76,60,.2); }
+
+    .portal-stat .ps-num { font-size: 1.8rem; font-weight: 900; display: block; }
+    .portal-stat.ok .ps-num { color: var(--green); }
+    .portal-stat.alert .ps-num { color: var(--red); }
+    .portal-stat .ps-label { font-size: .7rem; color: var(--gray-600); }
+
+    .portal-pend {
+      border: 1px solid var(--gray-200); border-radius: 10px; overflow: hidden;
+    }
+
+    .portal-pend-header {
+      background: var(--bg); padding: 10px 14px;
+      font-size: .75rem; font-weight: 700; color: var(--primary);
+    }
+
+    .portal-pend-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; border-top: 1px solid var(--gray-200);
+      font-size: .78rem;
+    }
+
+    .pend-icon { font-size: 1rem; flex-shrink: 0; }
+    .pend-text { color: var(--gray-700); line-height: 1.4; }
+    .pend-meta { font-size: .65rem; color: var(--gray-400); margin-top: 2px; }
+
+    .portal-btn {
+      display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;
+    }
+
+    .portal-btn button {
+      flex: 1; padding: 10px; border-radius: 8px;
+      font-size: .75rem; font-weight: 600; cursor: pointer;
+      border: none; transition: all .2s;
+    }
+
+    .pbtn-primary { background: var(--primary); color: white; }
+    .pbtn-outline { background: transparent; border: 1px solid var(--gray-300) !important; color: var(--gray-600); }
+
+    /* DASHBOARD MOCKUP */
+    .dash-mock {
+      background: #0f1923; border-radius: var(--radius-lg);
+      padding: 20px; box-shadow: var(--shadow-lg);
+    }
+
+    .dash-cards {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 10px; margin-bottom: 16px;
+    }
+
+    .dash-card {
+      border-radius: 10px; padding: 14px;
+      background: rgba(255,255,255,.05);
+    }
+
+    .dash-card .dc-num { font-size: 1.6rem; font-weight: 900; color: white; display: block; }
+    .dash-card .dc-label { font-size: .65rem; color: var(--gray-400); }
+    .dash-card .dc-sub { font-size: .65rem; margin-top: 4px; }
+    .dc-sub.ok { color: var(--green); }
+    .dc-sub.warn { color: #E67E22; }
+
+    .dash-table { width: 100%; border-collapse: collapse; }
+    .dash-table th {
+      text-align: left; padding: 8px 10px;
+      font-size: .65rem; font-weight: 700;
+      color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .dash-table td {
+      padding: 10px; font-size: .75rem;
+      color: rgba(255,255,255,.8);
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+
+    .dash-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 8px; border-radius: 100px; font-size: .65rem; font-weight: 600;
+    }
+
+    .badge-ok { background: rgba(46,204,113,.15); color: var(--green); }
+    .badge-warn { background: #3d2c1a; color: #ffb74d; }
+    .badge-alert { background: rgba(231,76,60,.15); color: var(--red); }
+
+    .dash-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot-green { background: var(--green); }
+    .dot-orange { background: #E67E22; }
+    .dot-red { background: var(--red); }
+
+    /* ===================== DIFERENCIAIS ===================== */
+    .diff { background: var(--bg); }
+
+    .diff-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px; max-width: 1100px; margin: 0 auto;
+    }
+
+    .diff-card {
+      background: white; border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      border: 1px solid var(--gray-200);
+      transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+
+    .diff-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: var(--green);
+      transform: scaleX(0); transition: transform .3s;
+    }
+
+    .diff-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .diff-card:hover::before { transform: scaleX(1); }
+
+    .diff-icon { font-size: 2rem; margin-bottom: 16px; display: block; }
+    .diff-card h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 8px; }
+    .diff-card p { font-size: .88rem; color: var(--gray-600); line-height: 1.6; }
+
+    /* ===================== PARA QUEM É ===================== */
+    .audience { background: white; }
+
+    .audience-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 24px; max-width: 1200px; margin: 0 auto;
+    }
+
+    .audience-card {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+      transition: all .3s;
+    }
+
+    .audience-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+    .audience-card-head {
+      padding: 28px;
+      background: var(--primary);
+    }
+
+    .audience-card-head .ac-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+    .audience-card-head h3 { color: white; font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+    .audience-card-head p { color: rgba(255,255,255,.7); font-size: .85rem; line-height: 1.5; }
+
+    .audience-card:nth-child(2) .audience-card-head { background: var(--green-dark); }
+    .audience-card:nth-child(3) .audience-card-head { background: #2C3E50; }
+    .audience-card:nth-child(4) .audience-card-head { background: #6C3483; }
+
+    .audience-card-body { padding: 24px 28px; }
+    .audience-card-body ul { list-style: none; }
+    .audience-card-body li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .88rem; color: var(--gray-700);
+      padding: 7px 0; border-bottom: 1px solid var(--gray-100);
+    }
+
+    .audience-card-body li:last-child { border: none; }
+    .audience-card-body li::before { content: '→'; color: var(--primary); font-weight: 700; }
+
+    /* ===================== CTA ===================== */
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary) 0%, #2A527F 100%);
+      text-align: center; padding: 100px 5%;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900; color: white; margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      font-size: 1.1rem; color: rgba(255,255,255,.75);
+      max-width: 560px; margin: 0 auto 40px; line-height: 1.7;
+    }
+
+    .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    .btn-cta-white {
+      background: white; color: var(--primary);
+      border: none; border-radius: 10px;
+      padding: 16px 32px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: all .2s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+
+    .btn-cta-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.2); }
+
+    .btn-cta-outline {
+      background: transparent; color: white;
+      border: 2px solid rgba(255,255,255,.4);
+      border-radius: 10px; padding: 16px 32px;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: all .2s;
+    }
+
+    .btn-cta-outline:hover { border-color: white; background: rgba(255,255,255,.1); }
+
+    /* ===================== FOOTER ===================== */
+    footer {
+      background: #0f1923;
+      color: rgba(255,255,255,.6);
+      padding: 48px 5% 32px;
+    }
+
+    .footer-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px; margin-bottom: 40px;
+    }
+
+    .footer-brand .logo-wrap {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+
+    .footer-brand .logo-icon {
+      width: 32px; height: 32px; background: var(--green);
+      border-radius: 7px; display: flex; align-items: center;
+      justify-content: center; font-weight: 900; color: white; font-size: .85rem;
+    }
+
+    .footer-brand .logo-name { color: white; font-weight: 700; font-size: 1.1rem; }
+    .footer-brand p { font-size: .85rem; line-height: 1.6; }
+
+    .footer-col h4 { color: white; font-size: .85rem; font-weight: 700; margin-bottom: 14px; }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 8px; }
+    .footer-col a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .85rem; transition: color .2s; }
+    .footer-col a:hover { color: var(--green); }
+
+    .footer-bottom {
+      max-width: 1100px; margin: 0 auto;
+      padding-top: 24px; border-top: 1px solid rgba(255,255,255,.08);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+    }
+
+    .footer-bottom p { font-size: .8rem; }
+    .footer-bottom a { color: var(--green); text-decoration: none; }
+
+    /* ===================== SCROLL REVEAL ===================== */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .pain-grid, .diff-grid { grid-template-columns: 1fr; }
+      .audience-grid { grid-template-columns: 1fr 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .steps::before { display: none; }
+      .tour-block { grid-template-columns: 1fr; gap: 40px; }
+      .tour-block.reverse { direction: ltr; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .nav-links { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .steps { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .hero-stats { justify-content: center; }
+      .dash-cards { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="logo-icon">✓</div>
+    <div>
+      <span>App<em>Vistoria</em></span>
+      <span style="display:block; font-size:.62rem; color:rgba(255,255,255,.5); font-weight:400; letter-spacing:.06em; text-transform:uppercase; line-height:1; margin-top:2px;">Condominial</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#como-funciona">Como funciona</a></li>
+    <li><a href="#sistema">O sistema</a></li>
+    <li><a href="#diferenciais">Diferenciais</a></li>
+    <li><a href="#para-quem">Para quem</a></li>
+  </ul>
+  <a href="#contato" class="nav-cta">Quero testar →</a>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Vistorias em tempo real
+      </div>
+      <h1>
+        Sua equipe em campo.
+        <span class="highlight">Você no controle.</span>
+      </h1>
+      <p>
+        Vistorias condominiais em tempo real, relatórios automáticos com foto e assinatura, e gestão completa para administradoras, empresas de segurança e condomínios.
+      </p>
+      <div class="hero-btns">
+        <a href="#contato" class="btn-primary">Começar agora →</a>
+        <a href="#sistema" class="btn-outline">Ver como funciona</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">56+</span>
+          <span class="stat-label">Itens de vistoria</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">4</span>
+          <span class="stat-label">Perfis de acesso</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Rastreável</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="device-frame">
+        <div class="device-screen">
+          <div class="device-header">
+            <span class="device-title">Condomínio Splendor</span>
+            <span class="device-badge">● Ao vivo</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-time">08:30</span>
+            <div class="timeline-icon icon-info">●</div>
+            <span class="timeline-text">Visita iniciada por <strong>Péricles</strong></span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-time">08:31</span>
+            <div class="timeline-icon icon-ok">✓</div>
+            <span class="timeline-text"><strong>Portaria</strong> — porta fechada, funcionária uniformizada</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-time">08:35</span>
+            <div class="timeline-icon icon-ok">✓</div>
+            <span class="timeline-text"><strong>Câmeras</strong> — CFTV operacional</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-time">08:40</span>
+            <div class="timeline-icon icon-err">✕</div>
+            <span class="timeline-text"><strong>Sistema</strong> — dificuldade ao dar saída de prestadores</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-time">08:52</span>
+            <div class="timeline-icon icon-ok">✓</div>
+            <span class="timeline-text"><strong>Correspondências</strong> — registradas com foto</span>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-time">09:00</span>
+            <div class="timeline-icon icon-info">⏳</div>
+            <span class="timeline-text">Observando operação do porteiro <strong>(15 min)</strong></span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-label">
+              <span>Progresso da visita</span>
+              <strong>80% concluído</strong>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PROBLEMA ===================== -->
+<section class="pain">
+  <div class="section-header center reveal">
+    <span class="section-label">O problema</span>
+    <h2 class="section-title">Como é a gestão de vistorias hoje?</h2>
+    <p class="section-sub">Sem um sistema, a supervisão condominial é lenta, manual e difícil de rastrear.</p>
+  </div>
+  <div class="pain-grid">
+    <div class="pain-card reveal">
+      <div class="pain-icon blue">📋</div>
+      <h3>Relatórios em papel ou planilha</h3>
+      <p>O supervisor vai ao condomínio, anota em papel, volta ao escritório e alguém digita. O resultado demora dias e perde informações no caminho.</p>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon green">🔍</div>
+      <h3>Sem visibilidade em tempo real</h3>
+      <p>A administradora não sabe o que está acontecendo enquanto o supervisor está em campo. Só descobre os problemas quando é tarde demais.</p>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon orange">⚠️</div>
+      <h3>Síndico sem informação clara</h3>
+      <p>O síndico recebe um PDF genérico dias depois da visita, sem foto, sem rastreabilidade e sem saber o que foi resolvido.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMO FUNCIONA ===================== -->
+<section class="how" id="como-funciona">
+  <div class="section-header center reveal">
+    <span class="section-label">Como funciona</span>
+    <h2 class="section-title">Do campo ao síndico em 4 passos</h2>
+    <p class="section-sub">Um fluxo simples, rastreável e automático do início ao fim.</p>
+  </div>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <h3>Supervisor inicia a visita</h3>
+      <p>Abre o app, seleciona o condomínio e começa o checklist. Cronômetro automático.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <h3>Preenche com voz e foto</h3>
+      <p>Fala as observações, tira fotos diretamente no app. Tudo registrado em tempo real.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <h3>Admin revisa e aprova</h3>
+      <p>A administradora acompanha ao vivo, revisa o relatório e decide o que enviar ao síndico.</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">4</div>
+      <h3>Síndico recebe o relatório</h3>
+      <p>PDF profissional com foto, assinatura e pendências. Acessa pelo portal quando quiser.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TOUR DO SISTEMA ===================== -->
+<section class="tour" id="sistema">
+  <div class="section-header center reveal">
+    <span class="section-label">O sistema</span>
+    <h2 class="section-title">Conheça cada funcionalidade</h2>
+    <p class="section-sub">Cada detalhe foi pensado para o dia a dia de quem faz supervisão condominial.</p>
+  </div>
+
+  <!-- BLOCO 1 — CHECKLIST -->
+  <div class="tour-block reveal">
+    <div class="tour-text">
+      <span class="tag">Checklist inteligente</span>
+      <h2>Monte seu formulário do jeito que precisar</h2>
+      <p>Escolha entre 56 perguntas organizadas em 11 categorias — Portaria, Segurança, Câmeras, Elevadores, Piscina, Garagem e mais. Ative só o que faz parte do contrato.</p>
+      <ul class="feature-list">
+        <li>Formulário completo ou por categoria</li>
+        <li>Perguntas obrigatórias e opcionais</li>
+        <li>Adicione perguntas personalizadas</li>
+        <li>Salve modelos por condomínio</li>
+        <li>Itens negativos exigem foto automaticamente</li>
+      </ul>
+    </div>
+    <div>
+      <div class="mockup">
+        <div class="mockup-header">
+          <span class="mockup-title">Condomínio Splendor — Checklist</span>
+          <span class="mockup-status status-green">20 perguntas</span>
+        </div>
+        <div class="checklist-item">
+          <div class="check-icon check-ok">✓</div>
+          <span class="ci-text">Portaria e Acesso</span>
+          <span class="ci-tag">11 itens</span>
+        </div>
+        <div class="checklist-item">
+          <div class="check-icon check-ok">✓</div>
+          <span class="ci-text">Segurança e CFTV</span>
+          <span class="ci-tag">8 itens</span>
+        </div>
+        <div class="checklist-item">
+          <div class="check-icon check-ok">✓</div>
+          <span class="ci-text">Áreas Comuns e Limpeza</span>
+          <span class="ci-tag">7 itens</span>
+        </div>
+        <div class="checklist-item">
+          <div class="check-icon check-na">–</div>
+          <span class="ci-text" style="color:rgba(255,255,255,.4)">Piscina</span>
+          <span class="ci-tag">não ativo</span>
+        </div>
+        <div class="checklist-item">
+          <div class="check-icon check-na">–</div>
+          <span class="ci-text" style="color:rgba(255,255,255,.4)">Elevadores</span>
+          <span class="ci-tag">não ativo</span>
+        </div>
+        <div style="margin-top:14px; padding:10px; background:rgba(46,204,113,.08); border-radius:8px; border:1px solid rgba(46,204,113,.2);">
+          <p style="color:var(--green); font-size:.72rem; font-weight:600;">⏱ Estimativa da visita: ≈ 35 minutos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO 2 — EXECUÇÃO -->
+  <div class="tour-block reverse reveal">
+    <div class="tour-text">
+      <span class="tag">Execução em campo</span>
+      <h2>O supervisor fala. O sistema registra.</h2>
+      <p>No campo, velocidade é tudo. O supervisor responde cada pergunta com voz — o sistema transcreve automaticamente. Tira a foto e avança. Sem digitar nada.</p>
+      <ul class="feature-list">
+        <li>Conversor de áudio em texto por pergunta</li>
+        <li>Foto diretamente pelo app</li>
+        <li>Funciona offline — sincroniza depois</li>
+        <li>Retoma onde parou se o app fechar</li>
+        <li>Barra de progresso em tempo real</li>
+      </ul>
+    </div>
+    <div>
+      <div class="mockup">
+        <div class="mockup-header">
+          <span class="mockup-title">← Portaria e Acesso &nbsp; 3/11</span>
+          <span class="mockup-status status-orange">⏱ 12 min</span>
+        </div>
+        <p style="color:rgba(255,255,255,.9); font-size:.85rem; font-weight:600; margin-bottom:12px;">A porta da guarita estava fechada ao chegar?</p>
+        <div style="display:flex; gap:8px; margin-bottom:14px;">
+          <button style="flex:1; padding:8px; border-radius:8px; background:var(--green); color:white; border:none; font-size:.75rem; font-weight:700; cursor:pointer;">✓ Conforme</button>
+          <button style="flex:1; padding:8px; border-radius:8px; background:rgba(231,76,60,.2); color:var(--red); border:1px solid rgba(231,76,60,.3); font-size:.75rem; cursor:pointer;">✕ Negativo</button>
+          <button style="flex:1; padding:8px; border-radius:8px; background:rgba(255,255,255,.06); color:var(--gray-400); border:none; font-size:.75rem; cursor:pointer;">– N/A</button>
+        </div>
+        <div style="background:#1b2530; border-radius:8px; padding:10px; margin-bottom:12px; font-size:.75rem; color:#e0e0e0;">
+          "porta fechada, apenas uma funcionária dentro da portaria uniformizada..."
+        </div>
+        <div class="audio-btn">
+          <div class="audio-wave">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+          🎤 Gravando áudio...
+        </div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <div style="background:#1b2530; border-radius:8px; padding:8px; display:flex; align-items:center; gap:6px; font-size:.7rem; color:#e0e0e0;">
+            📷 1 foto adicionada
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO 3 — TIMELINE -->
+  <div class="tour-block reveal">
+    <div class="tour-text">
+      <span class="tag">Timeline em tempo real</span>
+      <h2>Acompanhe cada visita ao vivo</h2>
+      <p>Enquanto o supervisor preenche o checklist no campo, a administradora vê cada resposta aparecer na timeline em tempo real. Problema encontrado? Receba um alerta imediato e fale com o supervisor pelo chat.</p>
+      <ul class="feature-list">
+        <li>Cada resposta aparece na timeline ao ser salva</li>
+        <li>Alerta automático em itens negativos</li>
+        <li>Chat direto com o supervisor em campo</li>
+        <li>Visão geral de todas as visitas do dia</li>
+        <li>Nota interna que não vai ao síndico</li>
+      </ul>
+    </div>
+    <div>
+      <div class="mockup">
+        <div class="mockup-header">
+          <span class="mockup-title">Splendor — Péricles</span>
+          <span class="mockup-status status-green">● Ao vivo · 38 min</span>
+        </div>
+        <div class="tl-item">
+          <span class="tl-time">08:30</span>
+          <div class="tl-dot check-icon check-na" style="font-size:.6rem;">●</div>
+          <div class="tl-content"><span class="tl-text">Visita iniciada</span></div>
+        </div>
+        <div class="tl-item">
+          <span class="tl-time">08:31</span>
+          <div class="tl-dot check-icon check-ok">✓</div>
+          <div class="tl-content"><span class="tl-text">Portaria — porta fechada ✅</span></div>
+        </div>
+        <div class="tl-item">
+          <span class="tl-time">08:35</span>
+          <div class="tl-dot check-icon check-ok">✓</div>
+          <div class="tl-content"><span class="tl-text">Câmeras CFTV operacionais ✅</span></div>
+        </div>
+        <div class="tl-item">
+          <span class="tl-time">08:40</span>
+          <div class="tl-dot check-icon check-no">✕</div>
+          <div class="tl-content">
+            <span class="tl-text" style="color:var(--red);">⚠ Sistema de portaria — dificuldade na saída</span>
+            <span class="tl-action">💬 Falar com supervisor</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <span class="tl-time">08:52</span>
+          <div class="tl-dot check-icon check-ok">✓</div>
+          <div class="tl-content"><span class="tl-text">📷 Foto — correspondências registradas</span></div>
+        </div>
+        <div class="tl-loading">
+          <div class="loading-dots">
+            <span></span><span></span><span></span>
+          </div>
+          aguardando próxima resposta...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO 4 — PDF -->
+  <div class="tour-block reverse reveal">
+    <div class="tour-text">
+      <span class="tag">Relatório em PDF</span>
+      <h2>Relatório profissional gerado automaticamente</h2>
+      <p>Ao finalizar a visita, o sistema gera o PDF com logo da empresa, fotos, respostas, assinatura digital e resumo de pendências. A administradora revisa e decide o que enviar ao síndico.</p>
+      <ul class="feature-list">
+        <li>Logo e cores da empresa no relatório</li>
+        <li>Fotos inseridas junto à pergunta</li>
+        <li>Itens negativos destacados em vermelho</li>
+        <li>Versão completa ou executiva</li>
+        <li>Assinatura digital do supervisor</li>
+      </ul>
+    </div>
+    <div>
+      <div class="pdf-mock">
+        <div class="pdf-header">
+          <div class="pdf-logo">AV</div>
+          <div class="pdf-title-block">
+            <h4>Relatório de Supervisão</h4>
+            <p>Condomínio Splendor · 19/03/2026 · Péricles · 52 min</p>
+          </div>
+        </div>
+        <div class="pdf-item">
+          <span class="pdf-check">✅</span>
+          <div class="pdf-item-text">
+            A porta da guarita estava fechada?
+            <div class="pdf-item-desc">"porta fechada, funcionária uniformizada e seguindo os procedimentos"</div>
+          </div>
+        </div>
+        <div class="pdf-item">
+          <span class="pdf-check">✅</span>
+          <div class="pdf-item-text">Câmeras de CFTV operacionais?
+            <div class="pdf-item-desc">"câmeras e portões operacionais"</div>
+          </div>
+        </div>
+        <div class="pdf-item" style="background:rgba(231,76,60,.04); border-radius:6px; padding:7px 6px; margin: 4px -6px;">
+          <span class="pdf-check">❌</span>
+          <div class="pdf-item-text" style="color:var(--red);">Porteiro deu baixa no sistema na saída?
+            <div class="pdf-item-desc" style="color:var(--gray-400);">"sistema arcaico, dificuldade para registrar saída"</div>
+          </div>
+        </div>
+        <div class="pdf-summary">
+          <div class="pdf-sum-item">
+            <span class="pdf-sum-num" style="color:var(--green);">26</span>
+            <span class="pdf-sum-label">Conformes</span>
+          </div>
+          <div class="pdf-sum-item">
+            <span class="pdf-sum-num" style="color:var(--red);">2</span>
+            <span class="pdf-sum-label">Pendências</span>
+          </div>
+          <div class="pdf-sum-item">
+            <span class="pdf-sum-num" style="color:var(--gray-400);">2</span>
+            <span class="pdf-sum-label">N/A</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO 5 — PORTAL SINDICO -->
+  <div class="tour-block reveal">
+    <div class="tour-text">
+      <span class="tag">Portal do Síndico</span>
+      <h2>O síndico recebe só o que a administradora aprovar</h2>
+      <p>O portal do síndico é alimentado apenas após a administradora revisar e dar OK. Isso garante que nenhuma informação incorreta chegue ao cliente. O síndico acessa um portal simples, via link seguro, com todo o histórico do condomínio.</p>
+      <ul class="feature-list">
+        <li>Só publicado após aprovação da administradora</li>
+        <li>Acesso por link seguro — sem senha complexa</li>
+        <li>Histórico completo de visitas</li>
+        <li>Download do PDF a qualquer momento</li>
+        <li>Síndico pode comentar e confirmar recebimento</li>
+      </ul>
+    </div>
+    <div>
+      <div class="portal-mock">
+        <div class="portal-head">
+          <h4>Condomínio Splendor</h4>
+          <p>Última visita: 19/03/2026 · Péricles da Conceição</p>
+        </div>
+        <div class="portal-stats">
+          <div class="portal-stat ok">
+            <span class="ps-num">26</span>
+            <span class="ps-label">✅ Conformes</span>
+          </div>
+          <div class="portal-stat alert">
+            <span class="ps-num">2</span>
+            <span class="ps-label">⚠ Pendências</span>
+          </div>
+        </div>
+        <div class="portal-pend">
+          <div class="portal-pend-header">Pendências abertas</div>
+          <div class="portal-pend-item">
+            <span class="pend-icon">❌</span>
+            <div>
+              <div class="pend-text">Câmera inoperante — chamado em andamento</div>
+              <div class="pend-meta">Registrado em 05/03/2026 · #chamado 4521</div>
+            </div>
+          </div>
+          <div class="portal-pend-item">
+            <span class="pend-icon">❌</span>
+            <div>
+              <div class="pend-text">Dificuldade no sistema de portaria</div>
+              <div class="pend-meta">Registrado em 02/03/2026 · aguardando</div>
+            </div>
+          </div>
+        </div>
+        <div class="portal-btn">
+          <button class="pbtn-primary">✅ Confirmar recebimento</button>
+          <button class="pbtn-outline">📄 Baixar PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO 6 — DASHBOARD -->
+  <div class="tour-block reverse reveal">
+    <div class="tour-text">
+      <span class="tag">Dashboard e histórico</span>
+      <h2>Tudo que você precisa saber, em uma tela</h2>
+      <p>A administradora tem visão completa de todos os condomínios, supervisores e pendências. Identifique postos atrasados, supervisores com alta conformidade e pendências em aberto — tudo com filtros por período, condomínio e categoria.</p>
+      <ul class="feature-list">
+        <li>Visão geral de toda a carteira</li>
+        <li>Alerta de condomínios sem visita recente</li>
+        <li>Desempenho por supervisor</li>
+        <li>Histórico de pendências com rastreabilidade</li>
+        <li>Exportação para Excel</li>
+      </ul>
+    </div>
+    <div>
+      <div class="dash-mock">
+        <div class="mockup-header">
+          <span class="mockup-title">Administradora XYZ — Março/2026</span>
+          <span class="mockup-status status-green">Ao vivo</span>
+        </div>
+        <div class="dash-cards">
+          <div class="dash-card">
+            <span class="dc-num">47</span>
+            <span class="dc-label">Visitas no mês</span>
+            <span class="dc-sub ok">✅ 43 finalizadas</span>
+          </div>
+          <div class="dash-card">
+            <span class="dc-num">12</span>
+            <span class="dc-label">Pendências</span>
+            <span class="dc-sub warn">⚠ 8 em aberto</span>
+          </div>
+          <div class="dash-card">
+            <span class="dc-num">94%</span>
+            <span class="dc-label">Conformidade</span>
+            <span class="dc-sub ok">↑ +2% vs mês ant.</span>
+          </div>
+        </div>
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Condomínio</th>
+              <th>Última visita</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="dash-dot dot-green"></span> Splendor</td>
+              <td>19/03/2026</td>
+              <td><span class="dash-badge badge-ok">✅ 0 pend.</span></td>
+            </tr>
+            <tr>
+              <td><span class="dash-dot dot-orange"></span> Res. Park</td>
+              <td>12/03/2026</td>
+              <td><span class="dash-badge badge-warn">⚠ 2 pend.</span></td>
+            </tr>
+            <tr>
+              <td><span class="dash-dot dot-red"></span> Vila Flores</td>
+              <td>01/03/2026</td>
+              <td><span class="dash-badge badge-alert">🔴 atrasado</span></td>
+            </tr>
+            <tr>
+              <td><span class="dash-dot dot-green"></span> Cond. Aurora</td>
+              <td>18/03/2026</td>
+              <td><span class="dash-badge badge-ok">✅ 0 pend.</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DIFERENCIAIS ===================== -->
+<section class="diff" id="diferenciais">
+  <div class="section-header center reveal">
+    <span class="section-label">Diferenciais</span>
+    <h2 class="section-title">Por que o AppVistoria é diferente</h2>
+    <p class="section-sub">Inteligência Artificial aplicada à vistoria condominial. Funcionalidades que nenhum outro sistema oferece.</p>
+  </div>
+  <div class="diff-grid">
+    <div class="diff-card reveal" style="border: 1px solid rgba(46,204,113,.3); background: linear-gradient(135deg, #fff 80%, rgba(46,204,113,.04));">
+      <span class="diff-icon">🤖</span>
+      <h3>Inteligência Artificial na vistoria</h3>
+      <p>O supervisor fala — mesmo com barulho, erro ou gíria. A IA transcreve, corrige, pontua e profissionaliza o texto automaticamente. O relatório sai impecável independente de quem preencheu.</p>
+    </div>
+    <div class="diff-card reveal">
+      <span class="diff-icon">🎤</span>
+      <h3>Áudio em texto no campo</h3>
+      <p>O supervisor fala a observação e o sistema transcreve automaticamente. Mão livre, mais velocidade e relatório mais detalhado — sem digitar nada.</p>
+    </div>
+    <div class="diff-card reveal">
+      <span class="diff-icon">⏱</span>
+      <h3>Estimativa de tempo automática</h3>
+      <p>Antes de cada visita, o sistema estima quanto tempo ela vai levar com base nas perguntas selecionadas. Planeje sua equipe com precisão.</p>
+    </div>
+    <div class="diff-card reveal">
+      <span class="diff-icon">📡</span>
+      <h3>Timeline em tempo real</h3>
+      <p>Acompanhe cada resposta do supervisor conforme ele preenche. Receba alertas automáticos em itens negativos e intervenha quando necessário.</p>
+    </div>
+    <div class="diff-card reveal">
+      <span class="diff-icon">🔒</span>
+      <h3>Aprovação antes de enviar</h3>
+      <p>A administradora revisa tudo antes de o síndico ver qualquer coisa. Controle total sobre o que sai da sua empresa.</p>
+    </div>
+    <div class="diff-card reveal">
+      <span class="diff-icon">📋</span>
+      <h3>Checklist 100% configurável</h3>
+      <p>56 perguntas em 11 categorias. Ative só o que faz parte do contrato de cada condomínio. Salve modelos reutilizáveis.</p>
+    </div>
+    <div class="diff-card reveal">
+      <span class="diff-icon">📄</span>
+      <h3>PDF profissional automático</h3>
+      <p>Relatório com logo, fotos, assinatura digital e resumo de pendências. Gerado automaticamente ao fim de cada visita.</p>
+    </div>
+    <div class="diff-card reveal">
+      <span class="diff-icon">⏸️</span>
+      <h3>Pausar e continuar depois</h3>
+      <p>O supervisor pode pausar a vistoria a qualquer momento e retomar depois exatamente onde parou. Nenhuma resposta, foto ou áudio é perdido — mesmo sem internet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PARA QUEM ===================== -->
+<section class="audience" id="para-quem">
+  <div class="section-header center reveal">
+    <span class="section-label">Para quem é</span>
+    <h2 class="section-title">Uma solução para cada perfil</h2>
+    <p class="section-sub">Seja qual for o seu modelo de gestão condominial, o AppVistoria se adapta.</p>
+  </div>
+  <div class="audience-grid">
+    <div class="audience-card reveal">
+      <div class="audience-card-head">
+        <span class="ac-icon">🏢</span>
+        <h3>Administradoras de Condomínio</h3>
+        <p>Gerencie toda a carteira com visibilidade total das visitas em tempo real.</p>
+      </div>
+      <div class="audience-card-body">
+        <ul>
+          <li>Acompanhe todas as visitas ao vivo</li>
+          <li>Relatórios automáticos para o síndico</li>
+          <li>Controle de desempenho por supervisor</li>
+          <li>Alertas de condomínios sem visita</li>
+          <li>Dashboard com indicadores</li>
+        </ul>
+      </div>
+    </div>
+    <div class="audience-card reveal">
+      <div class="audience-card-head">
+        <span class="ac-icon">🛡️</span>
+        <h3>Empresas de Segurança e Terceirização</h3>
+        <p>Comprove a qualidade do serviço com relatórios rastreáveis e assinados.</p>
+      </div>
+      <div class="audience-card-body">
+        <ul>
+          <li>Relatório com foto, hora e assinatura</li>
+          <li>Documentação de cada visita</li>
+          <li>Diferencial competitivo comprovado</li>
+          <li>Histórico para defesa em reclamações</li>
+          <li>App para supervisores em campo</li>
+        </ul>
+      </div>
+    </div>
+    <div class="audience-card reveal">
+      <div class="audience-card-head">
+        <span class="ac-icon">🎖️</span>
+        <h3>Síndicos Profissionais</h3>
+        <p>Escale sua atuação gerenciando vários condomínios com a mesma eficiência.</p>
+      </div>
+      <div class="audience-card-body">
+        <ul>
+          <li>Gestão de múltiplos condomínios</li>
+          <li>Vistorias documentadas e rastreáveis</li>
+          <li>Relatórios profissionais por condomínio</li>
+          <li>Histórico para prestação de contas</li>
+          <li>Credibilidade com moradores e assembleia</li>
+        </ul>
+      </div>
+    </div>
+    <div class="audience-card reveal">
+      <div class="audience-card-head">
+        <span class="ac-icon">🏠</span>
+        <h3>Condomínios de Autogestão</h3>
+        <p>Profissionalize a gestão do seu condomínio sem precisar de uma administradora.</p>
+      </div>
+      <div class="audience-card-body">
+        <ul>
+          <li>Simples como um formulário</li>
+          <li>Sem papel, sem planilha</li>
+          <li>Histórico organizado de vistorias</li>
+          <li>Relatórios para assembleia</li>
+          <li>Controle de pendências e chamados</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="cta-section" id="contato">
+  <h2>Pronto para transformar<br>sua gestão condominial?</h2>
+  <p>Comece hoje mesmo. Configure seu primeiro condomínio em minutos e veja seus supervisores em campo em tempo real.</p>
+  <div class="cta-btns">
+    <a href="#" class="btn-cta-white">🚀 Quero começar agora</a>
+    <a href="#" class="btn-cta-outline">💬 Falar com um especialista</a>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo-wrap">
+        <div class="logo-icon">✓</div>
+        <div>
+          <span class="logo-name">AppVistoria</span>
+          <span style="display:block; font-size:.62rem; color:rgba(255,255,255,.4); font-weight:400; letter-spacing:.06em; text-transform:uppercase; line-height:1; margin-top:2px;">Condominial</span>
+        </div>
+      </div>
+      <p>Vistorias condominiais em tempo real. Relatórios automáticos. Gestão completa.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Produto</h4>
+      <ul>
+        <li><a href="#como-funciona">Como funciona</a></li>
+        <li><a href="#sistema">O sistema</a></li>
+        <li><a href="#diferenciais">Diferenciais</a></li>
+        <li><a href="#">Planos</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Para quem</h4>
+      <ul>
+        <li><a href="#para-quem">Administradoras</a></li>
+        <li><a href="#para-quem">Empresas de segurança</a></li>
+        <li><a href="#para-quem">Síndicos profissionais</a></li>
+        <li><a href="#para-quem">Autogestão</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contato</h4>
+      <ul>
+        <li><a href="#">appvistoria.com.br</a></li>
+        <li><a href="#">Falar com especialista</a></li>
+        <li><a href="#">Suporte</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 AppVistoria · <a href="#">appvistoria.com.br</a></p>
+    <p>Sua equipe em campo. Você no controle.</p>
+  </div>
+</footer>
+
+<!-- ===================== SCROLL REVEAL ===================== -->
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

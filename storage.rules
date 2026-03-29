@@ -1,0 +1,81 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Funções auxiliares ──
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/(png|jpeg|jpg|gif|webp|svg\\+xml)');
+    }
+
+    function isPDF() {
+      return request.resource.contentType == 'application/pdf';
+    }
+
+    function isAllowedFile() {
+      return isImage() || isPDF();
+    }
+
+    // Tamanho máximo: 10MB
+    function isUnderSizeLimit() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  Avatares de usuários                                       ║
+    // ║  Caminho: /avatars/{userId}/{arquivo}                       ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    match /avatars/{userId}/{allPaths=**} {
+      // Qualquer autenticado pode ver avatares
+      allow read: if isAuthenticated();
+      // Só o próprio usuário pode fazer upload do seu avatar
+      allow write: if isAuthenticated()
+        && request.auth.uid == userId
+        && isImage()
+        && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  Arquivos por condomínio                                    ║
+    // ║  Caminho: /condominios/{condominioId}/{tipo}/{arquivo}      ║
+    // ║  Tipos: fotos, documentos, checklists, ordens, vistorias    ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    match /condominios/{condominioId}/{allPaths=**} {
+      // Leitura: qualquer autenticado (Firestore rules já filtram acesso)
+      allow read: if isAuthenticated();
+      // Escrita: autenticado + arquivo permitido + tamanho OK
+      allow write: if isAuthenticated()
+        && isAllowedFile()
+        && isUnderSizeLimit();
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  Logo e assets do sistema                                   ║
+    // ║  Caminho: /sistema/{arquivo}                                ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    match /sistema/{allPaths=**} {
+      allow read: if isAuthenticated();
+      // Apenas autenticados podem fazer upload (logo, etc.)
+      allow write: if isAuthenticated()
+        && isImage()
+        && request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // ╔══════════════════════════════════════════════════════════════╗
+    // ║  QR Code respostas (uploads de moradores/prestadores)       ║
+    // ║  Caminho: /qrcode-respostas/{qrcodeId}/{arquivo}            ║
+    // ╚══════════════════════════════════════════════════════════════╝
+    match /qrcode-respostas/{qrcodeId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated()
+        && isAllowedFile()
+        && isUnderSizeLimit();
+    }
+
+    // ── Padrão: negar tudo que não foi coberto acima ──
+  }
+}

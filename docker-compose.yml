@@ -1,0 +1,136 @@
+services:
+  # ── PostgreSQL ──
+  postgres:
+    image: postgres:16-alpine
+    container_name: gestao-db
+    restart: unless-stopped
+    command: >
+      postgres
+        -c shared_buffers=128MB
+        -c work_mem=8MB
+        -c maintenance_work_mem=64MB
+        -c effective_cache_size=1GB
+        -c max_connections=120
+        -c random_page_cost=1.1
+        -c checkpoint_completion_target=0.9
+    environment:
+      POSTGRES_DB: gestao
+      POSTGRES_USER: gestao
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-gestao_secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./server/src/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    networks:
+      - coolify
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gestao"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API Backend ──
+  gestao-api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: gestao-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: "3001"
+      DB_HOST: gestao-db
+      DB_PORT: "5432"
+      DB_NAME: gestao
+      DB_USER: gestao
+      DB_PASSWORD: ${DB_PASSWORD:-gestao_secret}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ORIGIN: https://gestaoelimpeza.com.br
+    volumes:
+      - uploads:/app/uploads
+    networks:
+      - coolify
+    labels:
+      - "traefik.enable=false"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3001/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Frontend Nginx ──
+  gestao-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gestao-app
+    restart: unless-stopped
+    depends_on:
+      - gestao-api
+    networks:
+      - coolify
+    labels:
+      - "traefik.enable=true"
+      # HTTPS
+      - "traefik.http.routers.gestao-https.rule=Host(`gestaoelimpeza.com.br`) || Host(`www.gestaoelimpeza.com.br`)"
+      - "traefik.http.routers.gestao-https.entrypoints=https"
+      - "traefik.http.routers.gestao-https.tls.certresolver=letsencrypt"
+      - "traefik.http.services.gestao.loadbalancer.server.port=80"
+      - "traefik.http.routers.gestao-https.priority=1"
+      # HTTP → HTTPS redirect
+      - "traefik.http.routers.gestao-http.rule=Host(`gestaoelimpeza.com.br`) || Host(`www.gestaoelimpeza.com.br`)"
+      - "traefik.http.routers.gestao-http.entrypoints=http"
+      - "traefik.http.routers.gestao-http.middlewares=gestao-redirect-https"
+      - "traefik.http.middlewares.gestao-redirect-https.redirectscheme.scheme=https"
+      # www → raiz redirect
+      - "traefik.http.routers.gestao-www.rule=Host(`www.gestaoelimpeza.com.br`)"
+      - "traefik.http.routers.gestao-www.entrypoints=https"
+      - "traefik.http.routers.gestao-www.tls=true"
+      - "traefik.http.routers.gestao-www.middlewares=gestao-redirect-www"
+      - "traefik.http.middlewares.gestao-redirect-www.redirectregex.regex=^https://www\\.gestaoelimpeza\\.com\\.br/(.*)"
+      - "traefik.http.middlewares.gestao-redirect-www.redirectregex.replacement=https://gestaoelimpeza.com.br/$${1}"
+      - "traefik.http.middlewares.gestao-redirect-www.redirectregex.permanent=true"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # ── Backup automático ──
+  gestao-backup:
+    image: postgres:16-alpine
+    container_name: gestao-backup
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGDATABASE: gestao
+      PGUSER: gestao
+      PGPASSWORD: ${DB_PASSWORD:-gestao_secret}
+      PGHOST: postgres
+      PGPORT: "5432"
+    volumes:
+      - backups:/var/backups/gestao
+    networks:
+      - coolify
+    entrypoint: >
+      sh -c "while true; do
+        TIMESTAMP=$$(date +%Y%m%d_%H%M%S);
+        echo \"[$$(date)] Iniciando backup...\";
+        pg_dump --no-owner --no-privileges | gzip > /var/backups/gestao/gestao_$$TIMESTAMP.sql.gz;
+        find /var/backups/gestao -name 'gestao_*.sql.gz' -mtime +30 -delete;
+        echo \"[$$(date)] Backup concluído.\";
+        sleep 86400;
+      done"
+
+volumes:
+  pgdata:
+  uploads:
+  backups:
+
+networks:
+  coolify:
+    external: true
