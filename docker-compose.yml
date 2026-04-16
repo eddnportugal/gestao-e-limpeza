@@ -1,33 +1,4 @@
 services:
-  # ── PostgreSQL ──
-  postgres:
-    image: postgres:16-alpine
-    container_name: gestao-db
-    restart: unless-stopped
-    command: >
-      postgres
-        -c shared_buffers=128MB
-        -c work_mem=8MB
-        -c maintenance_work_mem=64MB
-        -c effective_cache_size=1GB
-        -c max_connections=120
-        -c random_page_cost=1.1
-        -c checkpoint_completion_target=0.9
-    environment:
-      POSTGRES_DB: gestao
-      POSTGRES_USER: gestao
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-gestao_secret}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./server/src/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-    networks:
-      - coolify
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gestao"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # ── API Backend ──
   gestao-api:
     build:
@@ -35,18 +6,20 @@ services:
       dockerfile: Dockerfile
     container_name: gestao-api
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       PORT: "3001"
-      DB_HOST: gestao-db
-      DB_PORT: "5432"
-      DB_NAME: gestao
-      DB_USER: gestao
-      DB_PASSWORD: ${DB_PASSWORD:-gestao_secret}
+      DATABASE_URL: ${DATABASE_URL:-}
+      DB_SSL: ${DB_SSL:-false}
       JWT_SECRET: ${JWT_SECRET}
-      CORS_ORIGIN: https://gestaoelimpeza.com.br
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://gestaoelimpeza.com.br}
+      FRONTEND_URL: ${FRONTEND_URL:-https://gestaoelimpeza.com.br}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_SECURE: ${SMTP_SECURE:-true}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Gestão e Limpeza}
     volumes:
       - uploads:/app/uploads
     networks:
@@ -103,15 +76,12 @@ services:
     image: postgres:16-alpine
     container_name: gestao-backup
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
-      PGDATABASE: gestao
-      PGUSER: gestao
-      PGPASSWORD: ${DB_PASSWORD:-gestao_secret}
-      PGHOST: postgres
-      PGPORT: "5432"
+      PGDATABASE: ${BACKUP_DB_NAME:-gestao}
+      PGUSER: ${BACKUP_DB_USER:-gestao}
+      PGPASSWORD: ${BACKUP_DB_PASSWORD:-gestao_secret}
+      PGHOST: ${BACKUP_DB_HOST:-postgres}
+      PGPORT: ${BACKUP_DB_PORT:-5432}
     volumes:
       - backups:/var/backups/gestao
     networks:
@@ -127,7 +97,6 @@ services:
       done"
 
 volumes:
-  pgdata:
   uploads:
   backups:
 

@@ -1,43 +1,45 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import OpenAI from 'openai';
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class AiService {
-  private openai: OpenAI;
-  private anthropic: Anthropic;
+  private genAI: GoogleGenerativeAI;
 
   constructor(private readonly config: ConfigService) {
-    this.openai = new OpenAI({ apiKey: config.get('OPENAI_API_KEY') });
-    this.anthropic = new Anthropic({ apiKey: config.get('ANTHROPIC_API_KEY') });
+    this.genAI = new GoogleGenerativeAI(config.get('GEMINI_API_KEY') || '');
   }
 
   async transcreverAudio(audioPath: string): Promise<string> {
-    const audioFile = fs.createReadStream(audioPath);
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-    const transcription = await this.openai.audio.transcriptions.create({
-      file: audioFile,
-      model: 'whisper-1',
-      language: 'pt',
-      response_format: 'text',
-    });
+    const audioBuffer = fs.readFileSync(audioPath);
+    const ext = path.extname(audioPath).slice(1) || 'webm';
+    const mimeType = `audio/${ext === 'webm' ? 'webm' : ext === 'mp3' ? 'mpeg' : ext}`;
 
-    return transcription as unknown as string;
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          data: audioBuffer.toString('base64'),
+          mimeType,
+        },
+      },
+      'Transcreva este áudio em português brasileiro. Retorne APENAS o texto transcrito, sem explicações, formatação ou comentários.',
+    ]);
+
+    return result.response.text().trim();
   }
 
   async corrigirTextoVistoria(
     textoBruto: string,
     contexto: { pergunta: string; condominio: string; categoria: string },
   ): Promise<string> {
-    const mensagem = await this.anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 512,
-      messages: [
-        {
-          role: 'user',
-          content: `Você é um assistente especializado em vistorias condominiais.
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+    const result = await model.generateContent(
+      `Você é um assistente especializado em vistorias condominiais.
 
 Um supervisor de condomínio gravou uma observação por áudio. O texto abaixo foi transcrito automaticamente e pode conter erros de pronúncia, gírias ou linguagem informal.
 
@@ -50,13 +52,9 @@ Texto transcrito:
 "${textoBruto}"
 
 Reescreva esse texto de forma clara, profissional e adequada para um relatório de vistoria condominial. Mantenha o sentido original. Corrija erros gramaticais e de português. Não invente informações que não estão no texto original. Responda APENAS com o texto corrigido, sem explicações.`,
-        },
-      ],
-    });
+    );
 
-    const content = mensagem.content[0];
-    if (content.type === 'text') return content.text;
-    return textoBruto;
+    return result.response.text().trim() || textoBruto;
   }
 
   async estimarTempo(perguntas: number, categoria: string): Promise<number> {

@@ -2,8 +2,8 @@
  * Templates de e-mail para Comunicados e Avisos
  *
  * Gera HTML responsivo para envio por e-mail.
- * Em produção, estes templates seriam usados no backend (Firebase Functions, Node.js, etc.)
- * para compor o corpo do e-mail enviado via SendGrid/AWS SES/Mailgun.
+ * Em produção, estes templates são destinados ao backend próprio para compor
+ * o corpo do e-mail enviado via Google SMTP.
  */
 
 interface EmailTemplateParams {
@@ -45,12 +45,12 @@ function obterLogo(): string | undefined {
 /** Escapa HTML para evitar XSS */
 function escapeHtml(text: string): string {
   const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-  return text.replace(/[&<>"']/g, c => map[c]);
+  return Array.from(text).map(char => map[char] || char).join('');
 }
 
 /** Converte quebras de linha em <br> */
 function nl2br(text: string): string {
-  return escapeHtml(text).replace(/\n/g, '<br>');
+  return escapeHtml(text).replaceAll('\n', '<br>');
 }
 
 /**

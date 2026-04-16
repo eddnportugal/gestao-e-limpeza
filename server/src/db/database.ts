@@ -4,13 +4,23 @@ import { Pool, PoolClient } from 'pg';
 // Each request uses ~1-2 connections (auth+scope cached, route uses pool)
 // With 50 condos, ~30-50 concurrent users at peak → ~60-100 connections needed
 const POOL_MAX = Number.parseInt(process.env.DB_POOL_MAX || '80');
+const DATABASE_URL = process.env.DATABASE_URL?.trim();
+const useSsl = process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false };
 
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: Number.parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'gestao',
-  user: process.env.DB_USER || 'gestao',
-  password: process.env.DB_PASSWORD || 'gestao_secret',
+  ...(DATABASE_URL
+    ? {
+        connectionString: DATABASE_URL,
+        ssl: useSsl,
+      }
+    : {
+        host: process.env.DB_HOST || 'localhost',
+        port: Number.parseInt(process.env.DB_PORT || '5432'),
+        database: process.env.DB_NAME || 'gestao',
+        user: process.env.DB_USER || 'gestao',
+        password: process.env.DB_PASSWORD || '',
+        ssl: process.env.DB_SSL ? useSsl : false,
+      }),
   max: POOL_MAX,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 15000,

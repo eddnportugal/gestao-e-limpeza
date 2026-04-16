@@ -3,6 +3,46 @@ import bcrypt from 'bcrypt';
 import { query, queryOne, execute, withTransaction, cacheDel } from '../db/database.js';
 import { AuthRequest, invalidateUserCache } from '../middleware/auth.js';
 import { requireMinRole } from '../middleware/rbac.js';
+import { isMailerConfigured, sendMail } from '../services/mailer.js';
+
+function buildNovoCadastroHtml(novoNome: string, novoEmail: string, novoRole: string, criadoPor: string): string {
+  const roleLabels: Record<string, string> = {
+    master: 'Master', administrador: 'Administrador', supervisor: 'Supervisor', funcionario: 'Funcionário'
+  };
+  return `
+    <div style="font-family:Arial,sans-serif;background:#f5f7fa;padding:24px;color:#1f2937;">
+      <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;padding:32px;border:1px solid #e5e7eb;">
+        <h1 style="margin:0 0 16px;font-size:24px;color:#111827;">Novo cadastro na plataforma</h1>
+        <p style="margin:0 0 12px;font-size:16px;line-height:1.5;color:#374151;">
+          Um novo usuário foi cadastrado no sistema <strong>Gestão e Limpeza</strong>.
+        </p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+          <tr><td style="padding:8px 12px;font-weight:bold;color:#6b7280;">Nome</td><td style="padding:8px 12px;">${novoNome}</td></tr>
+          <tr style="background:#f9fafb;"><td style="padding:8px 12px;font-weight:bold;color:#6b7280;">E-mail</td><td style="padding:8px 12px;">${novoEmail}</td></tr>
+          <tr><td style="padding:8px 12px;font-weight:bold;color:#6b7280;">Perfil</td><td style="padding:8px 12px;">${roleLabels[novoRole] || novoRole}</td></tr>
+          <tr style="background:#f9fafb;"><td style="padding:8px 12px;font-weight:bold;color:#6b7280;">Cadastrado por</td><td style="padding:8px 12px;">${criadoPor}</td></tr>
+        </table>
+        <p style="margin:16px 0 0;font-size:13px;color:#9ca3af;">Este é um e-mail automático do sistema Gestão e Limpeza.</p>
+      </div>
+    </div>`;
+}
+
+async function notificarMastersNovoCadastro(novoNome: string, novoEmail: string, novoRole: string, criadoPor: string) {
+  if (!isMailerConfigured()) return;
+  try {
+    const masters = await query<any>('SELECT email, nome FROM usuarios WHERE role = $1 AND ativo = true', ['master']);
+    const html = buildNovoCadastroHtml(novoNome, novoEmail, novoRole, criadoPor);
+    for (const m of masters) {
+      await sendMail({
+        to: m.email,
+        subject: `Novo cadastro: ${novoNome} (${novoRole})`,
+        html,
+      });
+    }
+  } catch (err) {
+    console.error('[NOTIF-NOVO-CADASTRO] Erro ao enviar e-mail (não fatal):', err);
+  }
+}
 
 const router = Router();
 
@@ -65,6 +105,10 @@ router.post('/', requireMinRole('administrador'), async (req: AuthRequest, res: 
     // Invalidate scope cache (new user changes condomínio/supervisor counts)
     cacheDel('scope:');
     cacheDel('dash:');
+
+    // Notify masters by email about new registration
+    notificarMastersNovoCadastro(nome, email, role, caller.nome || caller.email);
+
     res.status(201).json(user);
   } catch (err: any) {
     console.error('[CRIAR USUARIO ERROR]', err.message);

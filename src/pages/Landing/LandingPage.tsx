@@ -7,7 +7,7 @@ import {
   Megaphone, Columns3, Users, ChevronRight, CheckCircle2, ArrowRight,
   Menu, X, Star, Zap, Lock, BarChart2, Smartphone, MessageCircle, Code2,
   FileText, Hotel, GraduationCap, Stethoscope, ShoppingCart, Landmark,
-  Warehouse, Plane, Dumbbell, UtensilsCrossed, Factory
+  Warehouse, Plane, Dumbbell, Factory
 } from 'lucide-react';
 import styles from './Landing.module.css';
 import contratoStyles from './Contrato.module.css';
@@ -199,8 +199,8 @@ const LandingPage: React.FC = () => {
             <button className={styles.btnPrimario} onClick={() => navigate('/login')}>
               Começar Agora <ArrowRight size={18} />
             </button>
-            <button className={styles.btnSecundario} onClick={() => scrollTo('funcionalidades')}>
-              Ver Funcionalidades <ChevronRight size={18} />
+            <button className={styles.btnSecundario} onClick={() => navigate('/login')}>
+              Ver Tutorial <ChevronRight size={18} />
             </button>
           </div>
           <div className={styles.heroStats}>
@@ -333,21 +333,16 @@ const LandingPage: React.FC = () => {
 
           <div className={styles.perfisGrid}>
             {[
-              { perfil: 'Administrador', descricao: 'Gerencia condomínios, usuários e permissões. Configura escalas, relatórios, comunicados, estoque, vencimentos, QR Codes por função e personalização visual do sistema.', cor: '#f57c00', demo: 'administrador' },
-              { perfil: 'Supervisor', descricao: 'Acompanha equipes em campo. Cria tarefas, roteiros de execução, checklists, vistorias e inspeções. Gerencia o quadro de atividades e a escala de trabalho.', cor: '#0288d1', demo: 'supervisor' },
-              { perfil: 'Funcionário', descricao: 'Executa tarefas do dia, marca checklists e roteiros passo a passo. Registra execuções com foto, áudio e GPS. Escaneia QR Codes, bate ponto e reporta problemas.', cor: '#00897b', demo: 'funcionario' },
+              { perfil: 'Administrador', descricao: 'Gerencia condomínios, usuários e permissões. Configura escalas, relatórios, comunicados, estoque, vencimentos, QR Codes por função e personalização visual do sistema.', cor: '#f57c00' },
+              { perfil: 'Supervisor', descricao: 'Acompanha equipes em campo. Cria tarefas, roteiros de execução, checklists, vistorias e inspeções. Gerencia o quadro de atividades e a escala de trabalho.', cor: '#0288d1' },
+              { perfil: 'Funcionário', descricao: 'Executa tarefas do dia, marca checklists e roteiros passo a passo. Registra execuções com foto, áudio e GPS. Escaneia QR Codes, bate ponto e reporta problemas.', cor: '#00897b' },
               { perfil: 'Morador', descricao: 'Resolve tudo pelo QR Code, sem necessidade de aplicativo. Responde formulários, avalia serviços e reporta ocorrências diretamente pelo celular.', cor: '#7b1fa2' },
             ].map((p, i) => (
-              <div key={i} className={`${styles.perfilCard} ${p.demo ? styles.perfilCardClicavel : ''}`} onClick={() => p.demo && navigate(`/demo/${p.demo}`)}>
+              <div key={i} className={styles.perfilCard}>
                 <div className={styles.perfilBadge} style={{ background: `${p.cor}12`, color: p.cor, borderColor: `${p.cor}30` }}>
                   {p.perfil}
                 </div>
                 <p className={styles.perfilDesc}>{p.descricao}</p>
-                {p.demo && (
-                  <button className={styles.perfilDemoBtn} style={{ background: p.cor }} onClick={(e) => { e.stopPropagation(); navigate(`/demo/${p.demo}`); }}>
-                    <Eye size={16} /> Testar Perfil
-                  </button>
-                )}
               </div>
             ))}
           </div>
@@ -501,57 +496,7 @@ const LandingPage: React.FC = () => {
             </a>
           </div>
 
-          {/* ═══ PARCERIA CTA ═══ */}
-          <div className={styles.parceriaBanner}>
-            <div className={styles.parceriaGlow} />
-            <div className={styles.parceriaContent}>
-              <div className={styles.parceriaLeft}>
-                <span className={styles.parceriaBadge}>🤝 Programa de Parceria</span>
-                <h3 className={styles.parceriaTitulo}>Gostou dos nossos sistemas?</h3>
-                <p className={styles.parceriaSubtitulo}>
-                  Seja nosso sócio e tenha ganhos de até <strong>50%</strong> em recorrência.
-                </p>
-                <a
-                  href="https://wa.me/5511933284364?text=Ol%C3%A1%2C%20tenho%20interesse%20em%20ser%20s%C3%B3cio!"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.parceriaBtn}
-                >
-                  <MessageCircle size={20} />
-                  Entre em contato e saiba mais
-                </a>
-              </div>
-              <div className={styles.parceriaRight}>
-                <div className={styles.parceriaItem}>
-                  <div className={styles.parceriaIconBox}>
-                    <span className={styles.parceriaEmoji}>🚀</span>
-                  </div>
-                  <div className={styles.parceriaItemTexto}>
-                    <span className={styles.parceriaItemLabel}>Inovação Contínua</span>
-                    <span className={styles.parceriaItemDesc}>1 Aplicativo novo lançado todo mês*</span>
-                  </div>
-                </div>
-                <div className={styles.parceriaItem}>
-                  <div className={styles.parceriaIconBox}>
-                    <span className={styles.parceriaEmoji}>🎨</span>
-                  </div>
-                  <div className={styles.parceriaItemTexto}>
-                    <span className={styles.parceriaItemLabel}>Personalização Total</span>
-                    <span className={styles.parceriaItemDesc}>1 Aplicativo 100% customizado ao seu gosto</span>
-                  </div>
-                </div>
-                <div className={styles.parceriaItem}>
-                  <div className={styles.parceriaIconBox}>
-                    <span className={styles.parceriaEmoji}>♾️</span>
-                  </div>
-                  <div className={styles.parceriaItemTexto}>
-                    <span className={styles.parceriaItemLabel}>Ganhos Permanentes</span>
-                    <span className={styles.parceriaItemDesc}>Recorrência por toda vida</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
       </section>
 

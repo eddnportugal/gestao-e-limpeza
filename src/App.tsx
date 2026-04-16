@@ -33,7 +33,6 @@ const VencimentosPage = React.lazy(() => import('./pages/Vencimentos/Vencimentos
 const MoradoresPage = React.lazy(() => import('./pages/Moradores/MoradoresPage'));
 const ComunicadosPage = React.lazy(() => import('./pages/Comunicados/ComunicadosPage'));
 const QuadroAtividadesPage = React.lazy(() => import('./pages/QuadroAtividades/QuadroAtividadesPage'));
-const DemoEntryPage = React.lazy(() => import('./pages/Demo/DemoEntryPage'));
 const CadastroPage = React.lazy(() => import('./pages/Auth/CadastroPage'));
 const EsqueciSenhaPage = React.lazy(() => import('./pages/Auth/EsqueciSenhaPage'));
 const PerfilPage = React.lazy(() => import('./pages/Perfil/PerfilPage'));
@@ -48,6 +47,7 @@ const ScanRondaPage = React.lazy(() => import('./pages/Rondas/ScanRondaPage'));
 const PublicChecklistPage = React.lazy(() => import('./pages/Public/PublicChecklistPage'));
 const PublicVistoriaPage = React.lazy(() => import('./pages/Public/PublicVistoriaPage'));
 const PublicTarefaPage = React.lazy(() => import('./pages/Public/PublicTarefaPage'));
+const TutorialPage = React.lazy(() => import('./pages/Tutorial/TutorialPage'));
 
 const PageLoader = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--cor-fundo)' }}>
@@ -116,7 +116,6 @@ const App: React.FC = () => {
       <Route path="/bloqueado" element={<BloqueadoPage />} />
       <Route path="/cadastro" element={<CadastroPage />} />
       <Route path="/esqueci-senha" element={<EsqueciSenhaPage />} />
-      <Route path="/demo/:perfil" element={<DemoEntryPage />} />
 
       {/* Rotas protegidas do sistema */}
       <Route element={
@@ -153,6 +152,7 @@ const App: React.FC = () => {
         <Route path="doc-publicos" element={<RoleGuard minRole={2}><DocumentosPublicosPage /></RoleGuard>} />
         <Route path="rondas" element={<RoleGuard minRole={2}><RondasPage /></RoleGuard>} />
         <Route path="configuracoes" element={<ConfiguracoesPage />} />
+        <Route path="tutorial" element={<TutorialPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

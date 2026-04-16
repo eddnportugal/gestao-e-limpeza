@@ -1,8 +1,20 @@
 import { Router, Response } from 'express';
 import { query, queryOne, execute } from '../db/database.js';
 import { AuthRequest } from '../middleware/auth.js';
+import { dataUrlToAttachment, isMailerConfigured, sendMail } from '../services/mailer.js';
 
 const router = Router();
+
+function buildFallbackHtml(titulo: string, mensagem: string) {
+  return `
+    <div style="font-family:Arial,sans-serif;background:#f5f7fa;padding:24px;color:#1f2937;">
+      <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;padding:32px;border:1px solid #e5e7eb;">
+        <h1 style="margin:0 0 16px;font-size:24px;color:#111827;">${titulo}</h1>
+        <div style="line-height:1.7;white-space:pre-wrap;">${mensagem || ''}</div>
+      </div>
+    </div>
+  `;
+}
 
 // GET /api/comunicados
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -26,17 +38,67 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const ids: string[] = (req as any).condominioIds;
-    const { tipo, titulo, mensagem, destinatarioTipo, condominioId, emailsEnviados, tracking } = req.body;
+    const { tipo, titulo, mensagem, destinatarioTipo, condominioId, emailsEnviados, tracking, emailHtml, assunto, pdfAnexo, pdfNome } = req.body;
     if (!condominioId || !ids.includes(condominioId)) {
       res.status(403).json({ error: 'Sem acesso' });
       return;
     }
+
+    if (!titulo?.trim()) {
+      res.status(400).json({ error: 'Título é obrigatório' });
+      return;
+    }
+
+    if (!isMailerConfigured()) {
+      res.status(503).json({ error: 'Google SMTP não configurado no backend.' });
+      return;
+    }
+
+    let destinatarios;
+    if (Array.isArray(tracking) && tracking.length > 0) {
+      destinatarios = tracking.map((item: any) => ({ email: item.email, nome: item.nome || item.email }));
+    } else {
+      const emails = Array.isArray(emailsEnviados) ? emailsEnviados : [];
+      destinatarios = emails.map((email: string) => ({ email, nome: email }));
+    }
+
+    if (destinatarios.length === 0) {
+      res.status(400).json({ error: 'Nenhum destinatário com e-mail informado.' });
+      return;
+    }
+
+    const attachments = pdfAnexo && pdfNome ? [dataUrlToAttachment(pdfAnexo, pdfNome)] : [];
+    const trackingFinal = [];
+    const htmlBase = emailHtml || buildFallbackHtml(titulo, mensagem);
+    const subject = assunto || titulo;
+
+    for (const destinatario of destinatarios) {
+      const atualizadoEm = new Date().toISOString();
+      try {
+        await sendMail({
+          to: destinatario.email,
+          subject,
+          html: htmlBase,
+          attachments,
+        });
+        trackingFinal.push({ ...destinatario, status: 'enviado', atualizadoEm });
+      } catch {
+        trackingFinal.push({ ...destinatario, status: 'erro', atualizadoEm });
+      }
+    }
+
+    const emailsComSucesso = trackingFinal.filter((item) => item.status === 'enviado').map((item) => item.email);
+    if (emailsComSucesso.length === 0) {
+      res.status(502).json({ error: 'Falha ao enviar e-mails para todos os destinatários.' });
+      return;
+    }
+
     const row = await queryOne(
       `INSERT INTO comunicados (tipo, titulo, mensagem, destinatario_tipo, condominio_id, emails_enviados, tracking, enviado_por, enviado_por_nome)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-      [tipo || 'comunicado', titulo, mensagem, destinatarioTipo, condominioId, emailsEnviados || [], JSON.stringify(tracking || []), req.user!.id, req.user!.nome]
+      [tipo || 'comunicado', titulo, mensagem, destinatarioTipo, condominioId, emailsComSucesso, JSON.stringify(trackingFinal), req.user!.id, req.user!.nome]
     );
-    res.status(201).json(row);
+    res.status(201).json({ ...row, assunto: subject, emailHtml: htmlBase, pdfNome: pdfNome || null });
   } catch (err: any) {
     console.error('POST /comunicados erro:', err.message);
     res.status(500).json({ error: 'Erro interno no servidor' });

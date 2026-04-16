@@ -4,8 +4,43 @@ import crypto from 'node:crypto';
 import { query, queryOne } from '../db/database.js';
 import { generateToken, AuthRequest, authMiddleware } from '../middleware/auth.js';
 import { checkRateLimit, recordLoginAttempt, auditLog, createNotification } from '../middleware/helpers.js';
+import { isMailerConfigured, sendMail } from '../services/mailer.js';
 
 const router = Router();
+
+function buildSelfRegisterHtml(nome: string, email: string): string {
+  return `
+    <div style="font-family:Arial,sans-serif;background:#f5f7fa;padding:24px;color:#1f2937;">
+      <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;padding:32px;border:1px solid #e5e7eb;">
+        <h1 style="margin:0 0 16px;font-size:24px;color:#111827;">Novo auto-cadastro</h1>
+        <p style="margin:0 0 12px;font-size:16px;line-height:1.5;color:#374151;">
+          Um novo administrador se cadastrou na plataforma <strong>Gestão e Limpeza</strong>.
+        </p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+          <tr><td style="padding:8px 12px;font-weight:bold;color:#6b7280;">Nome</td><td style="padding:8px 12px;">${nome}</td></tr>
+          <tr style="background:#f9fafb;"><td style="padding:8px 12px;font-weight:bold;color:#6b7280;">E-mail</td><td style="padding:8px 12px;">${email}</td></tr>
+          <tr><td style="padding:8px 12px;font-weight:bold;color:#6b7280;">Perfil</td><td style="padding:8px 12px;">Administrador</td></tr>
+        </table>
+        <p style="margin:16px 0 0;font-size:13px;color:#9ca3af;">Este é um e-mail automático do sistema Gestão e Limpeza.</p>
+      </div>
+    </div>`;
+}
+
+function buildResetPasswordHtml(nome: string, resetUrl: string): string {
+  return `
+    <div style="font-family:Arial,sans-serif;background:#f5f7fa;padding:24px;color:#1f2937;">
+      <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;padding:32px;border:1px solid #e5e7eb;">
+        <h1 style="margin:0 0 16px;font-size:24px;color:#111827;">Redefinição de senha</h1>
+        <p style="margin:0 0 12px;line-height:1.6;">Olá, ${nome || 'usuário'}.</p>
+        <p style="margin:0 0 20px;line-height:1.6;">Recebemos uma solicitação para redefinir a senha da sua conta no Gestão e Limpeza.</p>
+        <a href="${resetUrl}" style="display:inline-block;background:#f57c00;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700;">Redefinir senha</a>
+        <p style="margin:20px 0 0;line-height:1.6;">Se o botão não funcionar, copie e cole este link no navegador:</p>
+        <p style="margin:8px 0 0;word-break:break-all;color:#2563eb;">${resetUrl}</p>
+        <p style="margin:20px 0 0;line-height:1.6;color:#6b7280;">Este link expira em 1 hora.</p>
+      </div>
+    </div>
+  `;
+}
 
 function buildLoginFailMsg(remaining: number): string {
   const r = remaining - 1;
@@ -111,7 +146,7 @@ router.post('/register', authMiddleware, async (req: AuthRequest, res: Response)
     }
 
     const exists = await queryOne<any>('SELECT id, ativo FROM usuarios WHERE email = $1', [email]);
-    if (exists && exists.ativo) {
+    if (exists?.ativo) {
       res.status(409).json({ error: 'Este e-mail já está em uso por outro usuário ativo' });
       return;
     }
@@ -216,7 +251,7 @@ router.post('/self-register', async (req, res: Response) => {
 
     // Notify all masters about the new registration
     try {
-      const masters = await query<any>('SELECT id FROM usuarios WHERE role = $1 AND ativo = true', ['master']);
+      const masters = await query<any>('SELECT id, email FROM usuarios WHERE role = $1 AND ativo = true', ['master']);
       for (const m of masters) {
         await createNotification(
           m.id,
@@ -225,6 +260,14 @@ router.post('/self-register', async (req, res: Response) => {
           'info',
           '/usuarios'
         );
+        // Send email notification to master
+        if (isMailerConfigured()) {
+          await sendMail({
+            to: m.email,
+            subject: `Novo auto-cadastro: ${nome}`,
+            html: buildSelfRegisterHtml(nome, email),
+          });
+        }
       }
       await auditLog(null, 'self_register', 'usuarios', user!.id, { email, nome });
     } catch (notifErr) {
@@ -252,11 +295,13 @@ router.post('/forgot-password', async (req, res: Response) => {
     }
 
     // Always return success to avoid email enumeration
-    const user = await queryOne<any>('SELECT id FROM usuarios WHERE email = $1', [email]);
+    const user = await queryOne<any>('SELECT id, nome, email FROM usuarios WHERE email = $1', [email]);
 
-    if (user) {
+    if (user && isMailerConfigured()) {
       const token = crypto.randomBytes(32).toString('hex');
       const expiry = new Date(Date.now() + 3600000); // 1 hour
+      const frontendUrl = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || 'http://localhost:3000';
+      const resetUrl = `${frontendUrl.replace(/\/$/, '')}/esqueci-senha?token=${token}`;
 
       // Invalidate previous tokens for this user
       await query('UPDATE reset_tokens SET used = true WHERE user_id = $1 AND used = false', [user.id]);
@@ -265,6 +310,12 @@ router.post('/forgot-password', async (req, res: Response) => {
         'INSERT INTO reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
         [user.id, token, expiry]
       );
+
+      await sendMail({
+        to: user.email,
+        subject: 'Redefinição de senha - Gestão e Limpeza',
+        html: buildResetPasswordHtml(user.nome, resetUrl),
+      });
     }
 
     res.json({ message: 'Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha.' });

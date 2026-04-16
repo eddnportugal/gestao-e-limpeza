@@ -8,11 +8,10 @@ import { gerarEmailTemplate, gerarAssunto } from '../../utils/emailTemplates';
 import { usePagination } from '../../hooks/usePagination';
 import {
   Plus, X, Trash2, Send, Search, Building2, Mail, FileText,
-  Megaphone, Clock, Check, AlertCircle, Users, Home, ChevronDown, Paperclip,
-  Eye, EyeOff, ShieldAlert, BarChart3, RefreshCw, ExternalLink
+  Megaphone, Clock, Check, AlertCircle, Users, Home, Paperclip,
+  Eye, EyeOff, ShieldAlert, BarChart3, ExternalLink
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useDemo } from '../../contexts/DemoContext';
 import { comunicados as comunicadosApi, moradores as moradoresApi, condominios as condominiosApi } from '../../services/api';
 import styles from './Comunicados.module.css';
 
@@ -36,7 +35,7 @@ interface Condominio {
 
 type TipoEnvio = 'comunicado' | 'aviso';
 type Destinatario = 'morador' | 'bloco' | 'condominio';
-type StatusEmail = 'enviado' | 'aberto' | 'nao_aberto' | 'spam';
+type StatusEmail = 'enviado' | 'aberto' | 'nao_aberto' | 'spam' | 'erro';
 
 interface EmailTracking {
   email: string;
@@ -69,7 +68,6 @@ interface Comunicado {
 /* ============ Componente ============ */
 const ComunicadosPage: React.FC = () => {
   const { usuario } = useAuth();
-  const { tentarAcao } = useDemo();
   const nomeUsuarioAtual = usuario?.nome || 'Administrador';
   const [comunicados, setComunicados] = useState<Comunicado[]>([]);
   const [moradores, setMoradores] = useState<Morador[]>([]);
@@ -97,6 +95,7 @@ const ComunicadosPage: React.FC = () => {
   const [filtroCond, setFiltroCond] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [envioSucesso, setEnvioSucesso] = useState(false);
+  const [erroEnvio, setErroEnvio] = useState('');
 
   /* Form */
   const [tipo, setTipo] = useState<TipoEnvio>('aviso');
@@ -156,12 +155,13 @@ const ComunicadosPage: React.FC = () => {
   const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setErroEnvio('');
     if (file.type !== 'application/pdf') {
-      alert('Apenas arquivos PDF são permitidos.');
+      setErroEnvio('Apenas arquivos PDF são permitidos.');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      alert('Arquivo muito grande. Máximo: 10 MB.');
+      setErroEnvio('Arquivo muito grande. Máximo: 10 MB.');
       return;
     }
     const reader = new FileReader();
@@ -174,8 +174,8 @@ const ComunicadosPage: React.FC = () => {
   };
 
   /* Enviar */
-  const enviar = () => {
-    if (!tentarAcao()) return;
+  const enviar = async () => {
+    setErroEnvio('');
     if (!titulo.trim() || !destCond) return;
     if (tipo === 'comunicado' && !mensagem.trim() && !pdfAnexo) return;
     if (tipo === 'aviso' && !mensagem.trim()) return;
@@ -184,14 +184,13 @@ const ComunicadosPage: React.FC = () => {
 
     const dest = calcularDestinatarios();
     if (dest.emails.length === 0) {
-      alert('Nenhum morador com e-mail cadastrado foi encontrado para o destinatário selecionado.');
+      setErroEnvio('Nenhum morador com e-mail cadastrado foi encontrado para o destinatário selecionado.');
       return;
     }
 
     setEnviando(true);
 
-    /* Simula envio de e-mail (em produção seria via API/backend) */
-    setTimeout(() => {
+    try {
       const moradorSelecionado = destTipo === 'morador' ? moradores.find(m => m.id === destMoradorId) : undefined;
       const agora = new Date().toISOString();
 
@@ -218,7 +217,7 @@ const ComunicadosPage: React.FC = () => {
       });
 
       const novo: Comunicado = {
-        id: `com${Date.now()}`,
+        id: `com-${Date.now()}`,
         tipo,
         titulo: titulo.trim(),
         mensagem: mensagem.trim(),
@@ -238,18 +237,18 @@ const ComunicadosPage: React.FC = () => {
         enviadoPor: nomeUsuarioAtual,
       };
 
-      comunicadosApi.create(novo).then((criado) => {
-        setComunicados(prev => [criado as Comunicado || novo, ...prev]);
-      }).catch(() => {
-        setComunicados(prev => [novo, ...prev]);
-      });
-      setEnviando(false);
+      const criado = await comunicadosApi.create(novo);
+      setComunicados(prev => [{ ...novo, ...(criado as Comunicado) }, ...prev]);
       setEnvioSucesso(true);
       setTimeout(() => {
         setEnvioSucesso(false);
         fecharModal();
       }, 2000);
-    }, 1500);
+    } catch (err: any) {
+      setErroEnvio(err.message || 'Erro ao enviar comunicado.');
+    } finally {
+      setEnviando(false);
+    }
   };
 
   /* Modal control */
@@ -265,6 +264,7 @@ const ComunicadosPage: React.FC = () => {
     setDestMoradorId('');
     setEnviando(false);
     setEnvioSucesso(false);
+    setErroEnvio('');
     setModalAberto(true);
   };
 
@@ -275,33 +275,11 @@ const ComunicadosPage: React.FC = () => {
 
   /* Delete */
   const excluir = async (id: string) => {
-    if (!tentarAcao()) return;
     try {
       await comunicadosApi.remove(id);
       setComunicados(prev => prev.filter(c => c.id !== id));
     } catch (err) { console.error(err); }
     setConfirmDelete(null);
-  };
-
-  /* Simular atualização de tracking (em produção viria de webhook do serviço de e-mail) */
-  const simularAtualizacaoTracking = (comunicadoId: string) => {
-    setComunicados(prev => prev.map(c => {
-      if (c.id !== comunicadoId) return c;
-      const statusOpcoes: StatusEmail[] = ['aberto', 'nao_aberto', 'spam'];
-      const pesos = [0.55, 0.35, 0.10]; /* 55% abriu, 35% não abriu, 10% spam */
-      const agora = new Date().toISOString();
-      const novoTracking = c.tracking.map(t => {
-        const rand = Math.random();
-        let acumulado = 0;
-        let novoStatus: StatusEmail = 'nao_aberto';
-        for (let i = 0; i < statusOpcoes.length; i++) {
-          acumulado += pesos[i];
-          if (rand <= acumulado) { novoStatus = statusOpcoes[i]; break; }
-        }
-        return { ...t, status: novoStatus, atualizadoEm: agora };
-      });
-      return { ...c, tracking: novoTracking };
-    }));
   };
 
   /* Sync modal tracking com estado atualizado */
@@ -339,6 +317,7 @@ const ComunicadosPage: React.FC = () => {
       abertos: t.filter(x => x.status === 'aberto').length,
       naoAbertos: t.filter(x => x.status === 'enviado' || x.status === 'nao_aberto').length,
       spam: t.filter(x => x.status === 'spam').length,
+      erros: t.filter(x => x.status === 'erro').length,
       total: t.length,
     };
   };
@@ -348,8 +327,14 @@ const ComunicadosPage: React.FC = () => {
       case 'aberto': return 'Aberto';
       case 'nao_aberto': return 'Não aberto';
       case 'spam': return 'Spam';
+      case 'erro': return 'Erro';
       default: return 'Enviado';
     }
+  };
+
+  const statusBadgeClass = (status: StatusEmail) => {
+    if (status === 'erro') return styles.status_spam;
+    return styles[`status_${status}`];
   };
 
   /* Dest label */
@@ -510,6 +495,7 @@ const ComunicadosPage: React.FC = () => {
                             {s.abertos > 0 && <span className={styles.trackAberto} title="Abertos"><Eye size={11} /> {s.abertos}</span>}
                             {s.naoAbertos > 0 && <span className={styles.trackNaoAberto} title="Não abertos"><EyeOff size={11} /> {s.naoAbertos}</span>}
                             {s.spam > 0 && <span className={styles.trackSpam} title="Spam"><ShieldAlert size={11} /> {s.spam}</span>}
+                            {s.erros > 0 && <span className={styles.trackSpam} title="Falhas"><AlertCircle size={11} /> {s.erros}</span>}
                           </div>
                         );
                       })()}
@@ -571,6 +557,13 @@ const ComunicadosPage: React.FC = () => {
                 </div>
               ) : (
                 <>
+                  {erroEnvio && (
+                    <div className={styles.destPreviewVazio}>
+                      <AlertCircle size={14} />
+                      <span>{erroEnvio}</span>
+                    </div>
+                  )}
+
                   {/* Tipo */}
                   <div className={styles.tipoSelector}>
                     <button
@@ -814,14 +807,15 @@ const ComunicadosPage: React.FC = () => {
                         <span className={styles.trackResumoNum}>{s.spam}</span>
                         <span className={styles.trackResumoLabel}>Spam</span>
                       </div>
+                      <div className={styles.trackResumoItem}>
+                        <AlertCircle size={16} className={styles.iconSpam} />
+                        <span className={styles.trackResumoNum}>{s.erros}</span>
+                        <span className={styles.trackResumoLabel}>Falha(s)</span>
+                      </div>
                     </div>
                   </div>
                 );
               })()}
-
-              <button className={styles.refreshBtn} onClick={() => simularAtualizacaoTracking(modalTracking.id)}>
-                <RefreshCw size={14} /> Atualizar Status (simulação)
-              </button>
 
               {/* Tabela de detalhes */}
               <div className={styles.tableWrap}>
@@ -840,11 +834,12 @@ const ComunicadosPage: React.FC = () => {
                         <td className={styles.cellTitulo}>{t.nome}</td>
                         <td>{t.email}</td>
                         <td>
-                          <span className={`${styles.statusBadge} ${styles[`status_${t.status}`]}`}>
+                          <span className={`${styles.statusBadge} ${statusBadgeClass(t.status)}`}>
                             {t.status === 'aberto' && <Eye size={11} />}
                             {t.status === 'enviado' && <Send size={11} />}
                             {t.status === 'nao_aberto' && <EyeOff size={11} />}
                             {t.status === 'spam' && <ShieldAlert size={11} />}
+                            {t.status === 'erro' && <AlertCircle size={11} />}
                             {statusLabel(t.status)}
                           </span>
                         </td>
@@ -856,7 +851,7 @@ const ComunicadosPage: React.FC = () => {
               </div>
 
               <p className={styles.trackingNote}>
-                Em produção, o rastreamento é feito via pixel de abertura e webhooks do serviço de e-mail (SendGrid, AWS SES, Mailgun). Os status são atualizados automaticamente.
+                O painel mostra o status inicial de envio retornado pelo backend via Google SMTP. Rastreamento de abertura depende de integração adicional com webhooks ou pixel.
               </p>
             </div>
           </div>

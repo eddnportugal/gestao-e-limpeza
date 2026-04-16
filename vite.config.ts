@@ -93,18 +93,6 @@ export default defineConfig({
             return 'vendor-charts';
           }
 
-          if (id.includes('node_modules/firebase/app')) {
-            return 'vendor-firebase-core';
-          }
-
-          if (id.includes('node_modules/firebase/auth')) {
-            return 'vendor-firebase-auth';
-          }
-
-          if (id.includes('node_modules/firebase/firestore')) {
-            return 'vendor-firebase-firestore';
-          }
-
           return undefined;
         },
       },

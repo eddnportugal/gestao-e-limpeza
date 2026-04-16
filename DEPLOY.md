@@ -85,7 +85,16 @@ Depois rebuild normalmente (passo 2).
 | app-manutencao | appmanutencao.com.br | 8080 | — |
 | app-reserva | appreserva.com.br | 3000 | /opt/app-reserva/ |
 
-## Firebase
+## Infra Atual
 
-- **Projeto portariax-app:** Usado APENAS para FCM (push notifications)
-- **Projeto gestaoelimpeza-app:** Atualmente usado para Auth/Firestore (migração para Hetzner pendente)
+- **Banco e tabelas:** Supabase PostgreSQL
+- **Aplicação:** frontend + backend próprios em Docker no Hetzner
+- **E-mails transacionais:** Google SMTP
+- **Firebase:** legado removido do produto principal; não faz mais parte do fluxo oficial
+
+## Supabase Compartilhado No Hetzner
+
+- O backend `gestao-api` já aceita `DATABASE_URL` + `DB_SSL`; no deploy via Docker Compose, priorize esses envs para apontar ao Postgres da stack Supabase compartilhada.
+- Quando `DATABASE_URL` estiver definida, ela sobrepõe `DB_HOST`/`DB_PORT`/`DB_NAME`/`DB_USER`/`DB_PASSWORD` automaticamente.
+- Para containers na rede Docker `coolify`, a conexão recomendada é interna, por exemplo usando o host `supabase-db` e `DB_SSL=false`.
+- Mantenha isolamento entre sistemas por banco ou schema próprio; não reutilize tabelas entre produtos.

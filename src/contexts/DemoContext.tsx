@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-
-const DEMO_KEY = 'gestao_demo_mode';
+import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
 
 interface DemoContextData {
   isDemo: boolean;
@@ -19,28 +17,19 @@ const DemoContext = createContext<DemoContextData>({
 });
 
 export const DemoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isDemo, setDemoState] = useState(() => sessionStorage.getItem(DEMO_KEY) === 'true');
-  const [mostrarModal, setMostrarModal] = useState(false);
+  const [isDemo] = useState(false);
+  const [mostrarModal] = useState(false);
 
-  const setDemo = useCallback((value: boolean) => {
-    setDemoState(value);
-    if (value) {
-      sessionStorage.setItem(DEMO_KEY, 'true');
-    } else {
-      sessionStorage.removeItem(DEMO_KEY);
-    }
-  }, []);
+  const setDemo = useCallback((_value: boolean) => {}, []);
 
-  const tentarAcao = useCallback(() => {
-    if (!isDemo) return true;
-    setMostrarModal(true);
-    return false;
-  }, [isDemo]);
+  const tentarAcao = useCallback(() => true, []);
 
-  const fecharModal = useCallback(() => setMostrarModal(false), []);
+  const fecharModal = useCallback(() => {}, []);
+
+  const value = useMemo(() => ({ isDemo, setDemo, tentarAcao, mostrarModal, fecharModal }), [isDemo, setDemo, tentarAcao, mostrarModal, fecharModal]);
 
   return (
-    <DemoContext.Provider value={{ isDemo, setDemo, tentarAcao, mostrarModal, fecharModal }}>
+    <DemoContext.Provider value={value}>
       {children}
     </DemoContext.Provider>
   );

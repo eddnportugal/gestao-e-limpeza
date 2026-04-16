@@ -7,7 +7,7 @@ import { useDemo } from '../../contexts/DemoContext';
 import {
   LayoutDashboard, Users, ClipboardCheck, Wrench, Calendar,
   Package, Search, MapPin, Settings, LogOut, ChevronLeft,
-    ChevronRight, Building2, BarChart3, Shield, Menu, FileWarning, Eye, EyeOff, QrCode, ScanLine, Flame, CalendarCheck, BookOpen, CalendarClock, Contact, Megaphone, Columns3, GripVertical, RotateCcw, Bell, User, ClipboardList, FileText
+    ChevronRight, Building2, BarChart3, Shield, Menu, FileWarning, Eye, EyeOff, QrCode, ScanLine, Flame, CalendarCheck, BookOpen, CalendarClock, Contact, Megaphone, Columns3, GripVertical, RotateCcw, Bell, User, ClipboardList, FileText, GraduationCap
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 import logoImg from '../../assets/logo.png';
@@ -49,6 +49,7 @@ const menuItems: MenuItem[] = [
   { id: 'roteiros', label: 'Roteiro de Execução', icon: <BookOpen size={20} />, rota: '/roteiros', minRole: 1 },
   { id: 'tarefas', label: 'Tarefas Agendadas', icon: <CalendarCheck size={20} />, rota: '/tarefas', minRole: 1 },
   { id: 'vistorias', label: 'Vistorias', icon: <Eye size={20} />, rota: '/vistorias', minRole: 1 },
+  { id: 'tutorial', label: 'Tutorial do Sistema', icon: <GraduationCap size={20} />, rota: '/tutorial', minRole: 1 },
 ];
 
 const ORDEM_KEY = 'gestao-sidebar-ordem';
